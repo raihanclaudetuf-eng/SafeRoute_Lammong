@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Input Relawan - Navigasi Banjir</title>
+    <style>
+      body {
+        background-color: #0b132b;
+        color: white;
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        padding: 30px;
+        display: flex;
+        justify-content: center;
+      }
+      .panel {
+        background-color: #1c2541;
+        padding: 30px;
+        border-radius: 15px;
+        width: 100%;
+        max-width: 500px;
+        border-top: 5px solid #2ec4b6;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+      h2 {
+        color: #2ec4b6;
+        margin-top: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #a5f3fc;
+      }
+      select {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 20px;
+        background: #0b132b;
+        color: white;
+        border: 1px solid #2ec4b6;
+        border-radius: 8px;
+        font-size: 1.1rem;
+      }
+      button {
+        width: 100%;
+        padding: 16px;
+        background: #2ec4b6;
+        color: #0b132b;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.2rem;
+        cursor: pointer;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+      button:hover {
+        background: #24a195;
+      }
+      .link {
+        display: block;
+        text-align: center;
+        margin-top: 20px;
+        color: #94a3b8;
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="panel">
+      <h2>💧 PANEL RELAWAN</h2>
+      <p
+        style="
+          color: #94a3b8;
+          font-size: 0.9rem;
+          margin-top: -10px;
+          margin-bottom: 25px;
+        "
+      >
+        Laporkan kondisi genangan jalan saat ini.
+      </p>
+
+      <label>Update Kedalaman Air (Jalan Raya):</label>
+      <select id="input-kedalaman">
+        <option value="Kering (Aman)">Kering (Aman)</option>
+        <option value="Semata kaki (~10 cm)">Semata Kaki (~10 cm)</option>
+        <option value="Selutut (~50 cm)">Selutut (~50 cm)</option>
+        <option value="Seban / Setengah Body (~80 cm)">
+          Seban / Setengah Body (~80 cm)
+        </option>
+        <option value="Seleher / Tenggelam (> 1 Meter)">
+          Tenggelam (> 1 Meter)
+        </option>
+      </select>
+
+      <label>Kondisi Arus:</label>
+      <select id="input-arus">
+        <option value="Tenang">Tenang (Menggenang)</option>
+        <option value="Deras">Deras (Membahayakan)</option>
+      </select>
+
+      <button onclick="simpanLaporan()">KIRIM LAPORAN KE SERVER</button>
+      <a href="index.html" class="link">&larr; Kembali ke Halaman Utama</a>
+    </div>
+
+    <script>
+      // Ambil data yang tersimpan sebelumnya
+      if (localStorage.getItem("banjir_kedalaman")) {
+        document.getElementById("input-kedalaman").value =
+          localStorage.getItem("banjir_kedalaman");
+        document.getElementById("input-arus").value =
+          localStorage.getItem("banjir_arus");
+      }
+
+      function simpanLaporan() {
+        const kedalaman = document.getElementById("input-kedalaman").value;
+        const arus = document.getElementById("input-arus").value;
+
+        // Simpan ke memory
+        localStorage.setItem("banjir_kedalaman", kedalaman);
+        localStorage.setItem("banjir_arus", arus);
+
+        alert(`Laporan Terkirim!\n- Kedalaman: ${kedalaman}\n- Arus: ${arus}`);
+        window.location.href = "index.html";
+      }
+    </script>
+  </body>
+</html>

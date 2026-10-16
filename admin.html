@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kontrol Server Admin</title>
+    <style>
+      body {
+        background-color: #000;
+        color: #0f0;
+        font-family: monospace;
+        padding: 50px;
+        text-align: center;
+      }
+      .box {
+        border: 2px solid #0f0;
+        padding: 30px;
+        display: inline-block;
+        border-radius: 10px;
+      }
+      select {
+        padding: 10px;
+        font-size: 1.2rem;
+        background: #222;
+        color: #0f0;
+        border: 1px solid #0f0;
+        margin: 20px 0;
+        width: 100%;
+      }
+      button {
+        background: #0f0;
+        color: #000;
+        padding: 10px 20px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        cursor: pointer;
+        border: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <h1>🛠️ MASTER KONTROL SERVER AI</h1>
+      <p>
+        Bypass sistem kecerdasan buatan Gemini. Gunakan hanya saat
+        darurat/presentasi offline.
+      </p>
+
+      <select id="input-mode">
+        <option value="ON">🟢 STATUS AI: AKTIF (Default)</option>
+        <option value="OFF">
+          🔴 STATUS AI: DIMATIKAN (Gunakan Logika Manual)
+        </option>
+      </select>
+      <br />
+      <button onclick="simpanMode()">TERAPKAN SISTEM</button>
+    </div>
+
+    <script>
+      if (localStorage.getItem("sistem_ai_mode")) {
+        document.getElementById("input-mode").value =
+          localStorage.getItem("sistem_ai_mode");
+      }
+
+      function simpanMode() {
+        const mode = document.getElementById("input-mode").value;
+        localStorage.setItem("sistem_ai_mode", mode);
+        alert(`SISTEM SERVER DIPERBARUI.\nAI SEKARANG: ${mode}`);
+      }
+    </script>
+  </body>
+</html>

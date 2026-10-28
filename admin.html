@@ -5,55 +5,102 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kontrol Server Admin</title>
     <style>
+      :root {
+        --bg-light: #f8fafc;
+        --surface: #ffffff;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+        --border-color: #cbd5e1;
+        --accent-blue: #3b82f6;
+        --accent-hover: #2563eb;
+      }
+
       body {
-        background-color: #000;
-        color: #0f0;
-        font-family: monospace;
+        background-color: var(--bg-light);
+        color: var(--text-main);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         padding: 50px;
         text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+        margin: 0;
       }
       .box {
-        border: 2px solid #0f0;
-        padding: 30px;
+        background-color: var(--surface);
+        border: 1px solid var(--border-color);
+        padding: 40px;
         display: inline-block;
-        border-radius: 10px;
-      }
-      select {
-        padding: 10px;
-        font-size: 1.2rem;
-        background: #222;
-        color: #0f0;
-        border: 1px solid #0f0;
-        margin: 20px 0;
+        border-radius: 12px;
+        box-shadow:
+          0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        max-width: 500px;
         width: 100%;
       }
+      h1 {
+        margin-top: 0;
+        font-size: 1.8rem;
+        color: var(--text-main);
+      }
+      p {
+        color: var(--text-muted);
+        line-height: 1.5;
+        margin-bottom: 25px;
+      }
+      select {
+        padding: 12px 16px;
+        font-size: 1rem;
+        background: var(--bg-light);
+        color: var(--text-main);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        margin: 20px 0;
+        width: 100%;
+        outline: none;
+        cursor: pointer;
+        transition: border-color 0.2s;
+      }
+      select:focus {
+        border-color: var(--accent-blue);
+      }
       button {
-        background: #0f0;
-        color: #000;
-        padding: 10px 20px;
-        font-size: 1.2rem;
-        font-weight: bold;
+        background: var(--accent-blue);
+        color: #ffffff;
+        padding: 12px 24px;
+        font-size: 1.1rem;
+        font-weight: 600;
         cursor: pointer;
         border: none;
+        border-radius: 8px;
+        width: 100%;
+        transition:
+          background-color 0.2s,
+          transform 0.1s;
+      }
+      button:hover {
+        background: var(--accent-hover);
+      }
+      button:active {
+        transform: scale(0.98);
       }
     </style>
   </head>
   <body>
     <div class="box">
-      <h1>🛠️ MASTER KONTROL SERVER AI</h1>
+      <h1>🛠️ Kontrol Server Admin</h1>
       <p>
-        Bypass sistem kecerdasan buatan Gemini. Gunakan hanya saat
-        darurat/presentasi offline.
+        Pengaturan bypass sistem kecerdasan buatan Gemini. Gunakan hanya saat
+        darurat atau untuk presentasi offline.
       </p>
 
       <select id="input-mode">
         <option value="ON">🟢 STATUS AI: AKTIF (Default)</option>
-        <option value="OFF">
-          🔴 STATUS AI: DIMATIKAN (Gunakan Logika Manual)
-        </option>
+        <option value="OFF">🔴 STATUS AI: DIMATIKAN (Manual)</option>
       </select>
       <br />
-      <button onclick="simpanMode()">TERAPKAN SISTEM</button>
+      <button onclick="simpanMode()">Simpan Pengaturan</button>
     </div>
 
     <script>
@@ -65,7 +112,7 @@
       function simpanMode() {
         const mode = document.getElementById("input-mode").value;
         localStorage.setItem("sistem_ai_mode", mode);
-        alert(`SISTEM SERVER DIPERBARUI.\nAI SEKARANG: ${mode}`);
+        alert(`Sistem berhasil diperbarui.\nStatus AI saat ini: ${mode}`);
       }
     </script>
   </body>

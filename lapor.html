@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Input Relawan - Navigasi Banjir</title>
+
+    <!-- Firebase App & Realtime Database SDK (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
     <style>
       :root {
         --bg-light: #f8fafc;
@@ -34,9 +39,7 @@
         max-width: 500px;
         border: 1px solid var(--border-color);
         border-top: 5px solid var(--accent-blue);
-        box-shadow:
-          0 4px 6px -1px rgba(0, 0, 0, 0.1),
-          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
       }
       h2 {
         color: var(--text-main);
@@ -71,11 +74,7 @@
         font-size: 1rem;
         outline: none;
         cursor: pointer;
-        transition: border-color 0.2s;
         box-sizing: border-box;
-      }
-      select:focus {
-        border-color: var(--accent-blue);
       }
       button {
         width: 100%;
@@ -88,15 +87,9 @@
         cursor: pointer;
         font-weight: 700;
         text-transform: uppercase;
-        transition:
-          background-color 0.2s,
-          transform 0.1s;
       }
       button:hover {
         background: var(--accent-hover);
-      }
-      button:active {
-        transform: scale(0.98);
       }
       .link {
         display: block;
@@ -106,7 +99,6 @@
         text-decoration: none;
         font-size: 0.9rem;
         font-weight: 600;
-        transition: color 0.2s;
       }
       .link:hover {
         color: var(--accent-blue);
@@ -117,7 +109,7 @@
   <body>
     <div class="panel">
       <h2>💧 Panel Relawan</h2>
-      <p class="subtitle">Laporkan kondisi genangan jalan saat ini.</p>
+      <p class="subtitle">Laporkan kondisi genangan jalan secara real-time.</p>
 
       <label>Update Kedalaman Air (Jalan Raya):</label>
       <select id="input-kedalaman">
@@ -138,29 +130,42 @@
         <option value="Deras">Deras (Membahayakan)</option>
       </select>
 
-      <button onclick="simpanLaporan()">Kirim Laporan</button>
+      <button onclick="simpanLaporan()">Kirim Laporan Real-Time</button>
       <a href="index.html" class="link">&larr; Kembali ke Halaman Utama</a>
     </div>
 
     <script>
-      // Ambil data yang tersimpan sebelumnya
-      if (localStorage.getItem("banjir_kedalaman")) {
-        document.getElementById("input-kedalaman").value =
-          localStorage.getItem("banjir_kedalaman");
-        document.getElementById("input-arus").value =
-          localStorage.getItem("banjir_arus");
+      // Inisialisasi Firebase
+      const firebaseConfig = {
+        databaseURL: "https://safe-cfd6d-default-rtdb.firebaseio.com/", // Ganti dengan URL Firebase kamu
+      };
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
       }
+      const db = firebase.database();
 
       function simpanLaporan() {
         const kedalaman = document.getElementById("input-kedalaman").value;
         const arus = document.getElementById("input-arus").value;
 
-        // Simpan ke memory
-        localStorage.setItem("banjir_kedalaman", kedalaman);
-        localStorage.setItem("banjir_arus", arus);
-
-        alert(`Laporan Terkirim!\nKedalaman: ${kedalaman}\nArus: ${arus}`);
-        window.location.href = "index.html";
+        // Kirim data secara online ke Firebase Realtime Database
+        db.ref("laporan_terkini").set(
+          {
+            kedalaman: kedalaman,
+            arus: arus,
+            waktu: new Date().toLocaleTimeString(),
+          },
+          (error) => {
+            if (error) {
+              alert("Gagal mengirim laporan!");
+            } else {
+              alert(
+                `Laporan Berhasil Terkirim Secara Real-Time!\nKedalaman: ${kedalaman}\nArus: ${arus}`,
+              );
+              window.location.href = "index.html";
+            }
+          },
+        );
       }
     </script>
   </body>

@@ -3,7 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kontrol Server Admin</title>
+    <title>Kontrol Server Admin - SafeRoute</title>
+
+    <!-- Firebase App & Realtime Database SDK (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
     <style>
       :root {
         --bg-light: #f8fafc;
@@ -33,57 +38,74 @@
         padding: 40px;
         display: inline-block;
         border-radius: 12px;
-        box-shadow:
-          0 4px 6px -1px rgba(0, 0, 0, 0.1),
-          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         max-width: 500px;
         width: 100%;
+        text-align: left;
       }
       h1 {
         margin-top: 0;
-        font-size: 1.8rem;
+        font-size: 1.6rem;
         color: var(--text-main);
+        text-align: center;
       }
       p {
         color: var(--text-muted);
         line-height: 1.5;
         margin-bottom: 25px;
+        text-align: center;
+        font-size: 0.9rem;
       }
-      select {
+      label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+      select,
+      input[type="password"] {
         padding: 12px 16px;
         font-size: 1rem;
         background: var(--bg-light);
         color: var(--text-main);
         border: 1px solid var(--border-color);
         border-radius: 8px;
-        margin: 20px 0;
+        margin-bottom: 20px;
         width: 100%;
         outline: none;
-        cursor: pointer;
-        transition: border-color 0.2s;
+        box-sizing: border-box;
       }
-      select:focus {
+      select:focus,
+      input[type="password"]:focus {
         border-color: var(--accent-blue);
       }
       button {
         background: var(--accent-blue);
         color: #ffffff;
         padding: 12px 24px;
-        font-size: 1.1rem;
+        font-size: 1.05rem;
         font-weight: 600;
         cursor: pointer;
         border: none;
         border-radius: 8px;
         width: 100%;
-        transition:
-          background-color 0.2s,
-          transform 0.1s;
+        text-transform: uppercase;
       }
       button:hover {
         background: var(--accent-hover);
       }
-      button:active {
-        transform: scale(0.98);
+      .link {
+        display: block;
+        text-align: center;
+        margin-top: 20px;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+      .link:hover {
+        color: var(--accent-blue);
+        text-decoration: underline;
       }
     </style>
   </head>
@@ -91,28 +113,69 @@
     <div class="box">
       <h1>🛠️ Kontrol Server Admin</h1>
       <p>
-        Pengaturan bypass sistem kecerdasan buatan Gemini. Gunakan hanya saat
-        darurat atau untuk presentasi offline.
+        Masukkan password untuk mengubah pengaturan bypass sistem AI Gemini
+        secara online.
       </p>
 
+      <label>Status Mode AI:</label>
       <select id="input-mode">
         <option value="ON">🟢 STATUS AI: AKTIF (Default)</option>
         <option value="OFF">🔴 STATUS AI: DIMATIKAN (Manual)</option>
       </select>
-      <br />
+
+      <label>Password Admin:</label>
+      <input
+        type="password"
+        id="input-password"
+        placeholder="Masukkan password admin..."
+      />
+
       <button onclick="simpanMode()">Simpan Pengaturan</button>
+      <a href="index.html" class="link">&larr; Kembali ke Halaman Utama</a>
     </div>
 
     <script>
-      if (localStorage.getItem("sistem_ai_mode")) {
-        document.getElementById("input-mode").value =
-          localStorage.getItem("sistem_ai_mode");
+      // Inisialisasi Firebase
+      const firebaseConfig = {
+        databaseURL: "https://safe-cfd6d-default-rtdb.firebaseio.com/",
+      };
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
       }
+      const db = firebase.database();
+
+      // ATUR PASSWORD ADMIN DI SINI (Silakan ganti sesuai keinginanmu)
+      const PASSWORD_ADMIN = "lamongsaferai";
+
+      // Ambil status saat halaman dimuat dari Firebase
+      db.ref("sistem_ai_mode").once("value", (snapshot) => {
+        const mode = snapshot.val();
+        if (mode) {
+          document.getElementById("input-mode").value = mode;
+        }
+      });
 
       function simpanMode() {
+        const passwordInput = document.getElementById("input-password").value;
         const mode = document.getElementById("input-mode").value;
-        localStorage.setItem("sistem_ai_mode", mode);
-        alert(`Sistem berhasil diperbarui.\nStatus AI saat ini: ${mode}`);
+
+        // Cek apakah password cocok
+        if (passwordInput !== PASSWORD_ADMIN) {
+          alert("❌ Password admin salah! Anda tidak memiliki akses.");
+          return;
+        }
+
+        // Jika password benar, simpan ke Firebase
+        db.ref("sistem_ai_mode").set(mode, (error) => {
+          if (error) {
+            alert("Gagal memperbarui pengaturan server!");
+          } else {
+            alert(
+              `✅ Pengaturan Berhasil Disimpan!\nStatus AI saat ini: ${mode}`,
+            );
+            window.location.href = "index.html";
+          }
+        });
       }
     </script>
   </body>

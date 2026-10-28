@@ -489,7 +489,13 @@
       }).addTo(map);
 
       let activeLayerGroup = L.layerGroup().addTo(map);
-      let modeAI = localStorage.getItem("sistem_ai_mode") || "ON";
+      // Memantau mode AI dari Firebase secara real-time
+      let modeAI = "ON"; // Default
+      db.ref("sistem_ai_mode").on("value", (snapshot) => {
+        if (snapshot.val() !== null) {
+          modeAI = snapshot.val();
+        }
+      });
 
       async function ambilRuteJalan(titik, hindari = null) {
         const coords = titik.map((p) => `${p[1]},${p[0]}`).join(";");

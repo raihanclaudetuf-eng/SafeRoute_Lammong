@@ -11,10 +11,6 @@
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     />
 
-    <!-- Firebase App & Realtime Database SDK (Compat) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
     <style>
       :root {
         --bg-dark: #f1f5f9;
@@ -27,6 +23,7 @@
         --color-warning: #d97706;
         --color-danger: #dc2626;
 
+        /* Tambahan variabel untuk tema */
         --bg-grad-1: #e0f2fe;
         --bg-grad-2: #f1f5f9;
         --info-bg: #f8fafc;
@@ -34,6 +31,7 @@
         --border-color: rgba(15, 23, 42, 0.15);
       }
 
+      /* Tema Gelap */
       [data-theme="dark"] {
         --bg-grad-1: #0f172a;
         --bg-grad-2: #1e293b;
@@ -58,12 +56,12 @@
         );
         color: var(--text-light);
         margin: 0;
-        padding: 2vh 2vw;
+        padding: 2vh 2vw; /* Layout fit layar penuh */
         display: flex;
         flex-direction: column;
         align-items: center;
-        height: 100vh;
-        overflow: hidden;
+        height: 100vh; /* Kunci 100% tinggi layar */
+        overflow: hidden; /* Matikan scroll pada Windows */
       }
       header {
         position: relative;
@@ -72,23 +70,26 @@
         width: 100%;
         flex-shrink: 0;
       }
+      /* Tombol Tema */
       #theme-toggle {
-        position: absolute;
-        top: 0;
-        right: 0;
-        padding: 8px 12px;
-        border-radius: 8px;
-        border: 1px solid var(--border-color);
         background: var(--surface);
-        color: var(--text-light);
+        border: 1px solid var(--border-color);
+        border-radius: 50%;
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         cursor: pointer;
-        font-weight: 600;
-        font-size: 0.8rem;
+        font-size: 1.1rem;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        z-index: 10;
+        color: var(--text-light);
+        margin-left: 6px;
+        padding: 0;
+        transition: transform 0.2s;
       }
       #theme-toggle:hover {
-        opacity: 0.8;
+        transform: scale(1.1);
       }
 
       .title-wrapper {
@@ -117,11 +118,11 @@
 
       .container {
         display: flex;
-        flex-wrap: nowrap;
+        flex-wrap: nowrap; /* Panel dan peta sejajar di Desktop */
         gap: 20px;
         width: 100%;
         max-width: 1300px;
-        flex: 1;
+        flex: 1; /* Penuhi sisa tinggi */
         min-height: 0;
       }
 
@@ -129,12 +130,13 @@
         background-color: var(--surface);
         padding: 20px;
         border-radius: 16px;
-        flex: 0 0 350px;
+        flex: 0 0 350px; /* Lebar tetap panel kiri */
         box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
         display: flex;
         flex-direction: column;
-        overflow-y: auto;
+        overflow-y: auto; /* Scroll dalam panel jika konten penuh */
       }
+      /* Custom scrollbar untuk panel */
       .panel::-webkit-scrollbar {
         width: 6px;
       }
@@ -245,7 +247,7 @@
       }
 
       .map-container {
-        flex: 1;
+        flex: 1; /* Penuhi ruang kanan */
         height: 100%;
         border-radius: 16px;
         overflow: hidden;
@@ -253,6 +255,7 @@
         box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
       }
 
+      /* Responsif jika dibuka di HP */
       @media (max-width: 800px) {
         body {
           overflow: auto;
@@ -309,10 +312,10 @@
   </head>
   <body>
     <header>
-      <button id="theme-toggle">🌙 Dark Mode</button>
       <div class="title-wrapper">
         <span class="title-icon">🛡️</span>
         <h1>SafeRoute Lamong</h1>
+        <button id="theme-toggle" title="Ganti Tema">🌙</button>
       </div>
       <p class="subtitle">
         Sistem Pantau Kondisi Jalan, Rute Alternatif & Posko Evakuasi
@@ -321,6 +324,7 @@
     </header>
 
     <div class="container">
+      <!-- Panel Kontrol -->
       <div class="panel">
         <h3>Pilih Kendaraan Anda</h3>
         <div class="form-group">
@@ -380,7 +384,7 @@
               >Data Kondisi Terkini</strong
             >
             <span id="label-banjir" style="color: var(--text-muted)"
-              >Mendengarkan data real-time...</span
+              >Mendeteksi data satelit...</span
             >
           </div>
         </div>
@@ -397,12 +401,15 @@
         >
         <a
           href="admin.html"
+          target="_blank"
           class="link-access"
           style="margin-top: 10px; font-size: 0.75rem; color: #475569"
-          >Admin</a
+        >
+          Admin</a
         >
       </div>
 
+      <!-- Peta Visual -->
       <div class="map-container"><div id="map"></div></div>
     </div>
 
@@ -411,58 +418,41 @@
 
     <script>
       // =====================================================
-      // KONFIGURASI FIREBASE & GEMINI
+      // KONFIGURASI
       // =====================================================
-      const firebaseConfig = {
-        databaseURL: "https://safe-cfd6d-default-rtdb.firebaseio.com/", // Ganti dengan URL Firebase kamu
-      };
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-      }
-      const db = firebase.database();
-
-      const GEMINI_API_KEY = "";
+      const GEMINI_API_KEY = ""; // Masukkan API Key Anda
       const GEMINI_MODEL = "gemini-2.5-flash";
       const OSRM_BASE = "https://router.project-osrm.org/route/v1/driving";
 
-      // Variabel global kondisi air real-time dari Firebase
-      let kondisiAirLokal = "Kering (Aman)";
-      let kondisiArusLokal = "Tenang";
-
-      // MENDENGARKAN PERUBAHAN DATA REAL-TIME DARI FIREBASE
-      db.ref("laporan_terkini").on("value", (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          kondisiAirLokal = data.kedalaman;
-          kondisiArusLokal = data.arus;
-
-          const labelBanjir = document.getElementById("label-banjir");
-          if (labelBanjir) {
-           labelBanjir.innerHTML = `Hulu (Satelit): Terpantau <br>Hilir (Laporan): ${kondisiAirLokal} (${kondisiArusLokal}) - <em>Update: ${data.waktu}</em>`;
-          }
-        }
-      });
-
+      // =====================================================
+      // RUAS BANJIR (BERCABANG)
+      // =====================================================
       const RUAS_BANJIR = [
         {
           nama: "Poros Morowudi - Benjeng (utama)",
           aktif: true,
           titik: [
-            [-7.248258964737196, 112.56859953030484],
-            [-7.2629, 112.4984],
+            [-7.248258964737196, 112.56859953030484], // Morowudi
+            [-7.2629, 112.4984], // Benjeng Utama
           ],
         },
         {
-          nama: "Cabang 1 (benjeng bp)",
+          nama: "Cabang 1 (bwnjwng bp)",
           aktif: true,
           titik: [
             [-7.2629, 112.4984],
-            [-7.265278560868107, 112.47227324232543],
+            [-7.3018, 112.4414],
           ],
         },
       ];
 
       const dataTitikEvakuasi = [
+        {
+          nama: "Posko Darurat Kantor Kec. Benjeng",
+          lat: -7.2625,
+          lng: 112.5519,
+          info: "Dapur Umum & Pusat Komando",
+        },
         {
           nama: "Puskesmas Benjeng",
           lat: -7.259237035850619,
@@ -489,13 +479,13 @@
       }).addTo(map);
 
       let activeLayerGroup = L.layerGroup().addTo(map);
-      // Memantau mode AI dari Firebase secara real-time
-      let modeAI = "ON"; // Default
-      db.ref("sistem_ai_mode").on("value", (snapshot) => {
-        if (snapshot.val() !== null) {
-          modeAI = snapshot.val();
-        }
-      });
+
+      let kondisiAirLokal =
+        localStorage.getItem("banjir_kedalaman") || "Kering (Aman)";
+      let kondisiArusLokal = localStorage.getItem("banjir_arus") || "Tenang";
+
+      // MENGAMBIL STATUS MODE DARI ADMIN (LOCAL STORAGE)
+      let modeAI = localStorage.getItem("sistem_ai_mode") || "ON";
 
       async function ambilRuteJalan(titik, hindari = null) {
         const coords = titik.map((p) => `${p[1]},${p[0]}`).join(";");
@@ -517,6 +507,7 @@
           );
           let koordinat = semuaRute[0];
 
+          // AUTO AVOIDANCE: Diperketat ke 250 meter agar jalan utara kuning terdeteksi 100% aman
           if (hindari && semuaRute.length > 1) {
             const hindariRingan = hindari.filter((_, i) => i % 5 === 0);
             const skor = (rute) =>
@@ -534,6 +525,7 @@
 
           return { koordinat, dariJalan: true };
         } catch (err) {
+          console.warn("Routing OSRM gagal, fallback garis lurus:", err);
           return { koordinat: titik, dariJalan: false };
         } finally {
           clearTimeout(timer);
@@ -555,6 +547,13 @@
           return "Gagal membaca satelit";
         }
       }
+
+      async function inisialisasiTeks() {
+        const hulu = await getCuacaHulu();
+        document.getElementById("label-banjir").innerHTML =
+          `Hulu (Satelit): ${hulu} <br>Hilir (Laporan): <em>Menunggu navigasi dimulai...</em>`;
+      }
+      inisialisasiTeks();
 
       async function cekJalan() {
         const kendaraan = document.getElementById("kendaraan").value;
@@ -582,41 +581,45 @@
           async (position) => {
             const userLat = position.coords.latitude;
             const userLng = position.coords.longitude;
+
             const cuacaHulu = await getCuacaHulu();
             let status = "AMAN",
               pesan = `Jalur utama menuju ${destName} aman dilalui.`;
 
             if (modeAI === "OFF") {
-              await new Promise((r) => setTimeout(r, 600));
+              // === MODE MANUAL (TANPA AI) ===
+              await new Promise((r) => setTimeout(r, 600)); // Simulasi proses/loading
+
               let k = kondisiAirLokal.toLowerCase();
               if (k.includes("kering") || k.includes("aman")) {
                 status = "AMAN";
                 pesan = `Perjalanan menuju ${destName} terpantau aman terkendali.`;
               } else if (k.includes("kaki")) {
                 status = "AMAN";
-                pesan = `Genangan dangkal. Aman dilalui ${kendaraan}.`;
+                pesan = `Genangan dangkal di jalur utama. Sangat aman dilalui ${kendaraan} tanpa pindah rute.`;
               } else if (
                 k.includes("lutut") ||
                 k.includes("paha") ||
-                k.includes("tenggelam")
+                k.includes("lumpuh")
               ) {
                 if (
                   kendaraan.toLowerCase().includes("suv") ||
                   kendaraan.toLowerCase().includes("truk")
                 ) {
                   status = "WASPADA";
-                  pesan = `Air cukup tinggi (${kondisiAirLokal}). ${kendaraan} masih bisa lewat dengan pelan.`;
+                  pesan = `Air cukup tinggi (${kondisiAirLokal}). Kendaraan ${kendaraan} masih bisa lewat dengan kecepatan rendah.`;
                 } else {
                   status = "BAHAYA";
-                  pesan = `JALUR UTAMA TERHADANG BANJIR! Risiko tinggi untuk ${kendaraan}. Mengalihkan ke rute alternatif.`;
+                  pesan = `JALUR UTAMA TERHADANG BANJIR! Risiko mogok tinggi untuk ${kendaraan}. Sistem mengalihkan ke rute alternatif.`;
                 }
               } else {
                 status = "WASPADA";
-                pesan = `Kondisi air: ${kondisiAirLokal}. Harap hati-hati.`;
+                pesan = `Kondisi air terpantau: ${kondisiAirLokal}. Harap berhati-hati saat melintas.`;
               }
             } else {
+              // === PANGGIL GEMINI AI UNTUK PREDIKSI STATUS ===
               const urlGemini = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
-              const prompt = `Navigasi Banjir Gresik-Lamongan. Posisi GPS: ${userLat}, ${userLng}. Tujuan: ${destName}. Kendaraan: ${kendaraan}. Laporan Real-time: ${kondisiAirLokal}. Format JSON: { "status": "AMAN" | "WASPADA" | "BAHAYA", "pesan": "..." }`;
+              const prompt = `Navigasi Banjir Gresik-Lamongan. Posisi GPS User: Lat ${userLat}, Lng ${userLng}. Tujuan: ${destName}. Kendaraan: ${kendaraan}. Cuaca Hulu: ${cuacaHulu}. Laporan: ${kondisiAirLokal}. Jika jalan 'Semata kaki', status WAJIB 'AMAN'. Format JSON: { "status": "AMAN" | "WASPADA" | "BAHAYA", "pesan": "..." }`;
 
               try {
                 const response = await fetch(urlGemini, {
@@ -626,6 +629,7 @@
                     contents: [{ parts: [{ text: prompt }] }],
                   }),
                 });
+                if (!response.ok) throw new Error("HTTP " + response.status);
                 const data = await response.json();
                 const jsonMatch =
                   data.candidates[0].content.parts[0].text.match(/\{[\s\S]*\}/);
@@ -639,6 +643,27 @@
               }
             }
 
+            // --- UPDATE TEXT & TAMPILKAN BADGE HANYA JIKA TIDAK AMAN ---
+            let labelText = `Hulu (Satelit): ${cuacaHulu} <br>Hilir (Laporan): Aman terkendali.`;
+
+            if (status !== "AMAN") {
+              let badgeColor = "#0f9d8f";
+              if (kondisiAirLokal.toLowerCase().includes("kaki"))
+                badgeColor = "#0f9d8f";
+              if (
+                kondisiAirLokal.toLowerCase().includes("lutut") ||
+                kondisiAirLokal.toLowerCase().includes("paha") ||
+                kondisiAirLokal.toLowerCase().includes("lumpuh")
+              )
+                badgeColor = "#dc2626";
+
+              let badgeKedalaman = `<span style="display:inline-block; margin-top:8px; padding:6px 10px; background-color:${badgeColor}; color:white; font-weight:bold; border-radius:6px; font-size:0.85rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">Ketinggian: ${kondisiAirLokal}</span>`;
+              labelText = `Hulu (Satelit): ${cuacaHulu} <br>Hilir (Laporan): Terjadi Banjir.<br>${badgeKedalaman}`;
+            }
+
+            document.getElementById("label-banjir").innerHTML = labelText;
+
+            // Lanjut proses rute dinamis dengan status dari AI
             await prosesRuteDinamis(
               userLat,
               userLng,
@@ -648,7 +673,6 @@
               kendaraan,
               status,
               pesan,
-              cuacaHulu,
             );
             btn.disabled = false;
             loader.style.display = "none";
@@ -671,7 +695,6 @@
         kendaraan,
         status,
         pesan,
-        cuacaHulu,
       ) {
         const box = document.getElementById("result-box");
         const statusEl = document.getElementById("res-status");
@@ -689,7 +712,6 @@
           .addTo(activeLayerGroup)
           .bindPopup("<b>Lokasi Anda (GPS)</b>")
           .openPopup();
-
         L.marker([destLat, destLng], {
           icon: L.divIcon({
             className: "custom-pin",
@@ -709,6 +731,7 @@
         );
         const titikBanjir = merahList.flatMap((m) => m.koordinat);
 
+        // PENGECEKAN TABRAKAN (DIPERKETAT MENJADI 150 METER)
         const cekTabrakanBanjir = (rute) => {
           for (let i = 0; i < rute.length; i += 5) {
             for (let j = 0; j < titikBanjir.length; j += 5) {
@@ -722,6 +745,11 @@
         let ruteMenabrak = cekTabrakanBanjir(ruteFinal);
         let pakaiAlternatif = false;
         let catatanRouting = "";
+
+        if (!ruteMenabrak && !status.includes("AMAN")) {
+          status = "AMAN";
+          pesan = `Jalur menuju ${destName} aman karena tidak melewati titik banjir utama.`;
+        }
 
         if (status.includes("AMAN")) {
           box.classList.add("aman");
@@ -740,26 +768,43 @@
           if (ruteMenabrak) {
             pakaiAlternatif = true;
             let titikAlt = [[userLat, userLng]];
+
+            // SMART DETOUR: Prioritaskan Jalan Besar (Kuning) & Hindari Area Merah
             let pancinganBanjir = titikBanjir;
 
             if (destName.includes("Benjeng")) {
               titikAlt.push([-7.235, 112.502]);
-            } else if (
+            } else if (destName.includes("Balongpanggang")) {
+              // Bypass khusus Balongpanggang
+            }
+            // Matikan auto-avoidance agar rute patuh ke Banjarsari
+            else if (
               destName.includes("Surabaya") ||
               destName.includes("Cerme") ||
               destName.includes("Lamongan")
             ) {
-              titikAlt.push([-7.226, 112.53]);
+              titikAlt.push([-7.226, 112.53]); // Cerme Kidul
               pancinganBanjir = null;
             } else if (destName.includes("Mojokerto")) {
+              // BYPASS SELATAN KE MOJOKERTO
               titikAlt.push([-7.325, 112.44]);
             }
             titikAlt.push([destLat, destLng]);
 
             const alternatif = await ambilRuteJalan(titikAlt, pancinganBanjir);
             ruteFinal = alternatif.koordinat;
+
+            if (!alternatif.dariJalan)
+              catatanRouting =
+                "<br><small>⚠️ Rute alternatif garis lurus (perkiraan).</small>";
+          } else {
+            // Jika tidak menabrak banjir (misal jarak dekat yg aman), tetap pakai rute normal!
+            if (!normal.dariJalan)
+              catatanRouting =
+                "<br><small>⚠️ Rute garis lurus (perkiraan).</small>";
           }
 
+          // GAMBAR RUTE FINAL (Biru putus-putus) DULUAN (di bawah layer merah)
           L.polyline(ruteFinal, {
             color: "#3a86f0",
             weight: 6,
@@ -769,8 +814,8 @@
             .addTo(activeLayerGroup)
             .bindPopup(
               pakaiAlternatif
-                ? `<b>Rute Alternatif Menghindari Banjir</b>`
-                : `<b>Rute Normal Aman</b>`,
+                ? `<b>Rute Alternatif Menghindari Banjir menuju ${destName}</b>`
+                : `<b>Rute Normal (Aman dari Banjir) menuju ${destName}</b>`,
             );
 
           merahList.forEach((m, i) =>
@@ -807,23 +852,54 @@
           merahList.forEach((m) => bounds.extend(L.latLngBounds(m.koordinat)));
         map.fitBounds(bounds, { padding: [50, 50] });
 
+        let estimasiHTML = "";
+        if (status.includes("BAHAYA") || status.includes("WASPADA")) {
+          let komponen = kendaraan.includes("Motor")
+            ? status.includes("BAHAYA")
+              ? "Turun mesin, ECU terbakar, CVT masuk lumpur."
+              : "Gardan masuk air, rem basah kotor."
+            : status.includes("BAHAYA")
+              ? "Water hammer, ECU korslet, interior wajib bongkar."
+              : "Kelistrikan terganggu, rem blong.";
+          let biaya = kendaraan.includes("Motor")
+            ? status.includes("BAHAYA")
+              ? "Rp 750.000 - Rp 2.500.000"
+              : "Rp 150.000 - Rp 400.000"
+            : status.includes("BAHAYA")
+              ? "Rp 5.000.000 - Rp 25.000.000+"
+              : "Rp 500.000 - Rp 1.500.000";
+          let risiko = kendaraan.includes("Motor")
+            ? status.includes("BAHAYA")
+              ? "Tinggi (Motor Mati Total)"
+              : "Sedang (Kendala Performa)"
+            : status.includes("BAHAYA")
+              ? "Sangat Tinggi (Kerusakan Fatal)"
+              : "Sedang (Risiko Selip)";
+
+          estimasiHTML = `<div style="margin-top: 15px; padding: 15px; background: rgba(230, 57, 70, 0.08); border: 1.5px dashed #e63946; border-radius: 8px;"><strong style="color: #b91c1c; display: block; margin-bottom: 8px; font-size: 0.95rem;">⚠️ ESTIMASI RISIKO & KERUSAKAN (${kendaraan.toUpperCase()}):</strong><ul style="margin: 0; padding-left: 20px; font-size: 0.85rem; color: #334155; line-height: 1.6;"><li><strong>Kerusakan:</strong> ${komponen}</li><li><strong>Biaya:</strong> <span style="color: #dc2626; font-weight: bold;">${biaya}</span></li><li><strong>Risiko:</strong> ${risiko}</li></ul></div>`;
+        }
+
         pesanEl.innerHTML =
           pesan +
           catatanRouting +
-          `<br><br><span style="font-size:0.75rem; opacity:0.6;">*Tujuan: ${destName} | Kondisi Air: ${kondisiAirLokal}</span>`;
+          estimasiHTML +
+          `<br><br><span style="font-size:0.75rem; opacity:0.6; color:#94a3b8;">*Tujuan: ${destName} | Sistem: ${modeAI === "OFF" ? "Manual Laporan" : "AI " + GEMINI_MODEL}</span>`;
         box.style.display = "block";
       }
 
+      // =====================================================
+      // FITUR LIGHT/DARK MODE TOGGLE
+      // =====================================================
       const themeToggle = document.getElementById("theme-toggle");
       themeToggle.addEventListener("click", () => {
         const currentTheme =
           document.documentElement.getAttribute("data-theme");
         if (currentTheme === "dark") {
           document.documentElement.removeAttribute("data-theme");
-          themeToggle.innerText = "🌙 Dark Mode";
+          themeToggle.innerText = "🌙";
         } else {
           document.documentElement.setAttribute("data-theme", "dark");
-          themeToggle.innerText = "☀️ Light Mode";
+          themeToggle.innerText = "☀️";
         }
       });
     </script>

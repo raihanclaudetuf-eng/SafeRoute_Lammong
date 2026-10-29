@@ -399,6 +399,20 @@
         <a href="lapor.html" class="link-access"
           >Buka Akses Relawan (Laporan Lapangan) &rarr;</a
         >
+        <button
+          onclick="bukaAdmin()"
+          class="link-access"
+          style="
+            margin-top: 10px;
+            font-size: 0.75rem;
+            color: #475569;
+            background: none;
+            border: none;
+            cursor: pointer;
+          "
+        >
+          Admin
+        </button>
       </div>
 
       <!-- Peta Visual -->
@@ -412,17 +426,19 @@
       // FUNGSI ADMIN POP-UP (SINKRONISASI AI ON/OFF)
       function bukaAdmin() {
         let password = prompt("Akses Admin - Masukkan Password:");
-        
+
         if (password === "lamongsaferai") {
           let statusSekarang = localStorage.getItem("sistem_ai_mode") || "ON";
-          
+
           // Memunculkan Pilihan 1 atau 2 agar tidak lelah mengetik
           let pilihan = prompt(
-            "STATUS AI SAAT INI: [" + statusSekarang + "]\n\n" +
-            "Silakan ketik angka pilihan Anda:\n" +
-            "1 = NYALAKAN AI (Aktif)\n" +
-            "2 = MATIKAN AI (Off / Mode Demo)\n\n" +
-            "Lalu klik OK."
+            "STATUS AI SAAT INI: [" +
+              statusSekarang +
+              "]\n\n" +
+              "Silakan ketik angka pilihan Anda:\n" +
+              "1 = NYALAKAN AI (Aktif)\n" +
+              "2 = MATIKAN AI (Off / Mode Demo)\n\n" +
+              "Lalu klik OK.",
           );
 
           if (pilihan === null) return; // Jika klik batal, batalkan proses
@@ -430,11 +446,15 @@
           let inputClean = pilihan.trim();
           if (inputClean === "1") {
             localStorage.setItem("sistem_ai_mode", "ON");
-            alert("Sistem AI berhasil dinyalakan! [ON]\n\nHalaman akan dimuat ulang.");
+            alert(
+              "Sistem AI berhasil dinyalakan! [ON]\n\nHalaman akan dimuat ulang.",
+            );
             location.reload();
           } else if (inputClean === "2") {
             localStorage.setItem("sistem_ai_mode", "OFF");
-            alert("Sistem AI berhasil dimatikan! [OFF]\n\nHalaman akan dimuat ulang.");
+            alert(
+              "Sistem AI berhasil dimatikan! [OFF]\n\nHalaman akan dimuat ulang.",
+            );
             location.reload();
           } else {
             alert("Pilihan tidak valid! Masukkan angka 1 atau 2 saja.");

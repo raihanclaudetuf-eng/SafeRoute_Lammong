@@ -109,7 +109,9 @@
   <body>
     <div class="panel">
       <h2>💧 Panel Relawan</h2>
-      <p class="subtitle">Laporkan kondisi genangan jalan secara real-time.</p>
+      <p class="subtitle">
+        Laporkan kondisi genangan jalan secara real-time ke database pusat.
+      </p>
 
       <label>Update Kedalaman Air (Jalan Raya):</label>
       <select id="input-kedalaman">
@@ -135,9 +137,9 @@
     </div>
 
     <script>
-      // Inisialisasi Firebase
+      // Inisialisasi Firebase Realtime Database
       const firebaseConfig = {
-        databaseURL: "https://safe-cfd6d-default-rtdb.firebaseio.com/", // Ganti dengan URL Firebase kamu
+        databaseURL: "https://safe-cfd6d-default-rtdb.firebaseio.com/",
       };
       if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
@@ -162,7 +164,7 @@
               alert(
                 `Laporan Berhasil Terkirim Secara Real-Time!\nKedalaman: ${kedalaman}\nArus: ${arus}`,
               );
-              window.location.href = "index.html";
+              window.location.replace("index.html");
             }
           },
         );

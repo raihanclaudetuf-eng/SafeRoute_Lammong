@@ -376,7 +376,7 @@
           Mulai Navigasi
         </button>
         <div class="loader" id="loader">
-          Memproses Rute Kilat...
+          Mendeteksi GPS Perangkat...
         </div>
 
         <div class="info-card">
@@ -491,12 +491,12 @@
 
       let activeLayerGroup = L.layerGroup().addTo(map);
 
-      async function ambilRuteJalan(titik, hindari = null) {
+      async function ambilRuteJalan(titik) {
         const coords = titik.map((p) => `${p[1]},${p[0]}`).join(";");
-        const url = `${OSRM_BASE}/${coords}?overview=full&geometries=geojson${hindari ? "&alternatives=true" : ""}`;
+        const url = `${OSRM_BASE}/${coords}?overview=full&geometries=geojson`;
 
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 4000);
+        const timer = setTimeout(() => controller.abort(), 5000);
 
         try {
           const res = await fetch(url, { signal: controller.signal });
@@ -532,7 +532,8 @@
       }
       inisialisasiTeks();
 
-      async function cekJalan() {
+      // FUNGSI UTAMA: Mengambil GPS real device user, jika gagal baru fallback
+      function cekJalan() {
         const kendaraan = document.getElementById("kendaraan").value;
         const tujuanVal = document.getElementById("tujuan").value;
         const [destCoords, destName] = tujuanVal.split("|");
@@ -544,64 +545,73 @@
 
         btn.disabled = true;
         loader.style.display = "block";
-        loader.innerText = `🔄 Menghitung Rute Kilat...`;
+        loader.innerText = `📍 Mendeteksi Lokasi GPS Anda...`;
         resultBox.style.display = "none";
 
         if (!navigator.geolocation) {
-          jalankanNavigasi(-7.1645, 112.6033, destLat, destLng, destName, kendaraan, btn, loader);
+          alert("Geolocation tidak didukung di perangkat ini.");
+          jalankanNavigasi(-7.2625, 112.5519, destLat, destLng, destName, kendaraan, btn, loader);
           return;
         }
 
-        let gpsDiproses = false;
-        const gpsTimeout = setTimeout(() => {
-          if (!gpsDiproses) {
-            gpsDiproses = true;
-            jalankanNavigasi(-7.1645, 112.6033, destLat, destLng, destName, kendaraan, btn, loader);
+        let executed = false;
+        
+        // Timeout 4 detik untuk menangkap GPS device, jika agak lambat langsung arahkan ke Benjeng/Lamongan terdekat
+        const gpsTimer = setTimeout(() => {
+          if (!executed) {
+            executed = true;
+            console.warn("GPS device timeout, menggunakan kordinat default wilayah Lamongan/Gresik.");
+            jalankanNavigasi(-7.2625, 112.5519, destLat, destLng, destName, kendaraan, btn, loader);
           }
-        }, 3000);
+        }, 4000);
 
         navigator.geolocation.getCurrentPosition(
           (pos) => {
-            if (!gpsDiproses) {
-              gpsDiproses = true;
-              clearTimeout(gpsTimeout);
+            if (!executed) {
+              executed = true;
+              clearTimeout(gpsTimer);
               jalankanNavigasi(pos.coords.latitude, pos.coords.longitude, destLat, destLng, destName, kendaraan, btn, loader);
             }
           },
-          () => {
-            if (!gpsDiproses) {
-              gpsDiproses = true;
-              clearTimeout(gpsTimeout);
-              jalankanNavigasi(-7.1645, 112.6033, destLat, destLng, destName, kendaraan, btn, loader);
+          (err) => {
+            if (!executed) {
+              executed = true;
+              clearTimeout(gpsTimer);
+              console.warn("GPS error/ditolak:", err.message);
+              jalankanNavigasi(-7.2625, 112.5519, destLat, destLng, destName, kendaraan, btn, loader);
             }
           },
-          { timeout: 2500, maximumAge: 60000, enableHighAccuracy: false }
+          { timeout: 3500, maximumAge: 10000, enableHighAccuracy: true }
         );
       }
 
       async function jalankanNavigasi(userLat, userLng, destLat, destLng, destName, kendaraan, btn, loader) {
-        const cuacaHulu = await getCuacaHulu();
-        let status = "AMAN", pesan = `Jalur menuju ${destName} aman.`;
+        try {
+          const cuacaHulu = await getCuacaHulu();
+          let status = "AMAN", pesan = `Jalur utama menuju ${destName} aman dilalui.`;
 
-        if (modeAI === "OFF") {
-          let k = kondisiAirLokal.toLowerCase();
-          if (k.includes("kering") || k.includes("aman") || k.includes("kaki")) {
-            status = "AMAN";
-            pesan = `Kondisi terkini aman untuk ${kendaraan}.`;
+          if (modeAI === "OFF") {
+            let k = kondisiAirLokal.toLowerCase();
+            if (k.includes("kering") || k.includes("aman") || k.includes("kaki")) {
+              status = "AMAN";
+              pesan = `Kondisi air terpantau ${kondisiAirLokal}. Sangat aman dilalui ${kendaraan}.`;
+            } else {
+              status = "BAHAYA";
+              pesan = `PERINGATAN! Terdeteksi genangan ${kondisiAirLokal}. Risiko tinggi mogok untuk ${kendaraan}.`;
+            }
           } else {
-            status = "BAHAYA";
-            pesan = `Terdeteksi genangan ${kondisiAirLokal}. Pengalihan rute aktif.`;
+            status = kondisiAirLokal.toLowerCase().includes("lutut") || kondisiAirLokal.toLowerCase().includes("seban") || kondisiAirLokal.toLowerCase().includes("tenggelam") ? "BAHAYA" : "AMAN";
+            pesan = status === "BAHAYA" ? `Jalur utama terhalang genangan (${kondisiAirLokal}). Diperlukan rute evakuasi.` : `Rute utama menuju ${destName} aman terkendali.`;
           }
-        } else {
-          status = kondisiAirLokal.toLowerCase().includes("lutut") ? "BAHAYA" : "AMAN";
-          pesan = status === "BAHAYA" ? "Jalur utama terhalang banjir." : "Rute utama lancar dan aman.";
-        }
 
-        document.getElementById("label-banjir").innerHTML = `Hulu: ${cuacaHulu} <br>Hilir: ${kondisiAirLokal}`;
-        await prosesRuteDinamis(userLat, userLng, destLat, destLng, destName, kendaraan, status, pesan);
-        
-        btn.disabled = false;
-        loader.style.display = "none";
+          document.getElementById("label-banjir").innerHTML = `Hulu: ${cuacaHulu} <br>Hilir: ${kondisiAirLokal}`;
+          await prosesRuteDinamis(userLat, userLng, destLat, destLng, destName, kendaraan, status, pesan);
+        } catch (e) {
+          console.error("Error navigasi:", e);
+        } finally {
+          if (btn) btn.disabled = false;
+          if (loader) loader.style.display = "none";
+        }
       }
 
       async function prosesRuteDinamis(userLat, userLng, destLat, destLng, destName, kendaraan, status, pesan) {
@@ -614,7 +624,7 @@
 
         L.marker([userLat, userLng], {
           icon: L.divIcon({ className: "custom-pin", html: `<div style="background-color:#38bdf8;width:18px;height:18px;border-radius:50%;border:2px solid white;"></div>` })
-        }).addTo(activeLayerGroup).bindPopup("<b>Posisi Anda</b>").openPopup();
+        }).addTo(activeLayerGroup).bindPopup("<b>Posisi Anda (GPS Device)</b>").openPopup();
 
         L.marker([destLat, destLng], {
           icon: L.divIcon({ className: "custom-pin", html: `<div style="background-color:#e63946;width:20px;height:20px;border-radius:50%;border:2px solid white;"></div>` })
@@ -623,26 +633,37 @@
         const normal = await ambilRuteJalan([[userLat, userLng], [destLat, destLng]]);
         let ruteFinal = normal.koordinat;
 
+        let estimasiHTML = "";
+
         if (status.includes("AMAN")) {
           box.classList.add("aman");
-          statusEl.innerText = `✅ STATUS: AMAN`;
+          statusEl.innerText = `✅ STATUS: RUTE AMAN`;
           L.polyline(ruteFinal, { color: "#0f9d8f", weight: 5, opacity: 0.9 }).addTo(activeLayerGroup);
         } else {
           box.classList.add("bahaya");
-          statusEl.innerText = `🚨 JALUR UTAMA TERHADANG!`;
+          statusEl.innerText = `🚨 JALUR UTAMA TERHADANG BANJIR!`;
           L.polyline(ruteFinal, { color: "#3a86f0", weight: 5, opacity: 0.9, dashArray: "8, 8" }).addTo(activeLayerGroup);
           
           dataTitikEvakuasi.forEach(t => {
             L.marker([t.lat, t.lng], {
               icon: L.divIcon({ className: "custom-pin", html: `<div class="pin-evakuasi">✚</div>`, iconSize: [24,24], iconAnchor: [12,12] })
-            }).addTo(activeLayerGroup).bindPopup(`<b>🏥 ${t.nama}</b>`);
+            }).addTo(activeLayerGroup).bindPopup(`<b>🏥 ${t.nama}</b><br><small>${t.info}</small>`);
           });
+
+          // KEMBALIKAN ESTIMASI KERUSAKAN & BIAYA SECARA LENGKAP
+          let komponen = kendaraan.includes("Motor")
+            ? "Turun mesin, ECU terbakar, CVT masuk lumpur."
+            : "Water hammer, ECU korslet, interior wajib bongkar.";
+          let biaya = kendaraan.includes("Motor") ? "Rp 750.000 - Rp 2.500.000" : "Rp 5.000.000 - Rp 25.000.000+";
+          let risiko = kendaraan.includes("Motor") ? "Tinggi (Motor Mati Total)" : "Sangat Tinggi (Kerusakan Fatal)";
+
+          estimasiHTML = `<div style="margin-top: 12px; padding: 10px; background: rgba(230, 57, 70, 0.08); border: 1.5px dashed #e63946; border-radius: 6px;"><strong style="color: #b91c1c; display: block; margin-bottom: 6px; font-size: 0.85rem;">⚠️ ESTIMASI KERUSAKAN (${kendaraan.toUpperCase()}):</strong><ul style="margin: 0; padding-left: 18px; font-size: 0.78rem; color: #334155; line-height: 1.5;"><li><strong>Kerusakan:</strong> ${komponen}</li><li><strong>Biaya:</strong> <span style="color: #dc2626; font-weight: bold;">${biaya}</span></li><li><strong>Risiko:</strong> ${risiko}</li></ul></div>`;
         }
 
         const bounds = L.latLngBounds(ruteFinal);
         map.fitBounds(bounds, { padding: [40, 40] });
 
-        pesanEl.innerHTML = pesan + `<br><br><span style="font-size:0.7rem; opacity:0.6;">*Sistem: ${modeAI === "OFF" ? "Manual Laporan" : "AI"}</span>`;
+        pesanEl.innerHTML = pesan + estimasiHTML + `<br><br><span style="font-size:0.7rem; opacity:0.6;">*Tujuan: ${destName} | Sistem: ${modeAI === "OFF" ? "Manual Laporan" : "AI"}</span>`;
         box.style.display = "block";
       }
 

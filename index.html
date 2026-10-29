@@ -48,6 +48,13 @@
       * {
         box-sizing: border-box;
         font-family: "Inter", sans-serif;
+      }
+      body,
+      .panel,
+      .info-card,
+      select,
+      button,
+      .link-access {
         transition: all 0.25s ease-in-out;
       }
       body {
@@ -429,21 +436,12 @@
         <a href="lapor.html" class="link-access"
           >Buka Akses Relawan (Laporan Lapangan) &rarr;</a
         >
-        <button
-          onclick="bukaAdmin()"
+        <a
+          href="admin.html"
           class="link-access"
-          style="
-            margin-top: 10px;
-            font-size: 0.75rem;
-            color: #475569;
-            background: none;
-            border: none;
-            cursor: pointer;
-            width: 100%;
-          "
+          style="margin-top: 10px; font-size: 0.75rem; color: #475569"
+          >Admin</a
         >
-          Admin
-        </button>
       </div>
 
       <!-- Peta Visual -->
@@ -474,6 +472,7 @@
         if (val) {
           modeAI = val;
           console.log("Status AI disinkronkan dari server:", modeAI);
+          inisialisasiTeks();
         }
       });
 
@@ -486,51 +485,6 @@
           inisialisasiTeks();
         }
       });
-
-      // FUNGSI ADMIN TERINTEGRASI FIREBASE (PILIHAN 1 / 2)
-      function bukaAdmin() {
-        let password = prompt("Akses Admin - Masukkan Password:");
-
-        if (password === "lamongsaferai") {
-          let statusSekarang = modeAI;
-          let pilihan = prompt(
-            "STATUS AI SAAT INI (PUSAT): [" +
-              statusSekarang +
-              "]\n\n" +
-              "Silakan ketik angka pilihan Anda:\n" +
-              "1 = NYALAKAN AI (Aktif di Semua HP)\n" +
-              "2 = MATIKAN AI (Off / Mode Demo di Semua HP)\n\n" +
-              "Lalu klik OK.",
-          );
-
-          if (pilihan === null) return;
-          let inputClean = pilihan.trim();
-
-          if (inputClean === "1") {
-            db.ref("sistem_ai_mode").set("ON", (error) => {
-              if (!error) {
-                alert(
-                  "Sistem AI pusat berhasil diubah menjadi: ON\nSemua perangkat tersinkronisasi!",
-                );
-                location.reload();
-              }
-            });
-          } else if (inputClean === "2") {
-            db.ref("sistem_ai_mode").set("OFF", (error) => {
-              if (!error) {
-                alert(
-                  "Sistem AI pusat berhasil dimatikan: OFF\nSemua perangkat tersinkronisasi!",
-                );
-                location.reload();
-              }
-            });
-          } else {
-            alert("Pilihan tidak valid! Masukkan angka 1 atau 2 saja.");
-          }
-        } else if (password !== null && password !== "") {
-          alert("Password Salah! Akses ditolak.");
-        }
-      }
 
       // KONFIGURASI
       const GEMINI_API_KEY = "";
@@ -637,24 +591,35 @@
         }
       }
 
+      let cacheCuaca = { waktu: 0, hasil: null };
+      const CUACA_TTL = 5 * 60 * 1000; // 5 menit
+
       async function getCuacaHulu() {
         try {
           if (modeAI === "OFF") return "Diabaikan (Mode Offline/Demo)";
+          if (cacheCuaca.hasil && Date.now() - cacheCuaca.waktu < CUACA_TTL) {
+            return cacheCuaca.hasil;
+          }
           const response = await fetch(
             "https://api.open-meteo.com/v1/forecast?latitude=-7.4225&longitude=112.4358&current_weather=true",
           );
           const data = await response.json();
           const code = data.current_weather.weathercode;
-          if (code >= 61 && code <= 65) return "Hujan Sedang / Deras";
-          if (code > 65) return "Hujan Badai";
-          return "Aman / Cerah";
+          let hasil = "Aman / Cerah";
+          if (code >= 61 && code <= 65) hasil = "Hujan Sedang / Deras";
+          else if (code > 65) hasil = "Hujan Badai";
+          cacheCuaca = { waktu: Date.now(), hasil };
+          return hasil;
         } catch (err) {
           return "Gagal membaca satelit";
         }
       }
 
+      let teksSeq = 0;
       async function inisialisasiTeks() {
+        const seq = ++teksSeq;
         const hulu = await getCuacaHulu();
+        if (seq !== teksSeq) return; // ada panggilan yang lebih baru
         document.getElementById("label-banjir").innerHTML =
           `Hulu (Satelit): ${hulu} <br>Hilir (Firebase): <b>${kondisiAirLokal}</b>`;
       }
@@ -791,6 +756,7 @@
 
         let labelText = `Hulu (Satelit): ${cuacaHulu} <br>Hilir (Firebase): ${kondisiAirLokal}`;
         document.getElementById("label-banjir").innerHTML = labelText;
+
         try {
           await prosesRuteDinamis(
             userLat,
@@ -808,18 +774,6 @@
           btn.disabled = false;
           loader.style.display = "none";
         }
-        await prosesRuteDinamis(
-          userLat,
-          userLng,
-          destLat,
-          destLng,
-          destName,
-          kendaraan,
-          status,
-          pesan,
-        );
-        btn.disabled = false;
-        loader.style.display = "none";
       }
 
       async function prosesRuteDinamis(

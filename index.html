@@ -491,9 +491,9 @@
 
       let activeLayerGroup = L.layerGroup().addTo(map);
 
-      async function ambilRuteJalan(titik) {
+      async function ambilRuteJalan(titik, hindari = null) {
         const coords = titik.map((p) => `${p[1]},${p[0]}`).join(";");
-        const url = `${OSRM_BASE}/${coords}?overview=full&geometries=geojson`;
+        const url = `${OSRM_BASE}/${coords}?overview=full&geometries=geojson${hindari ? "&alternatives=true" : ""}`;
 
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 4000);
@@ -547,43 +547,64 @@
         loader.innerText = `🔄 Menghitung Rute Kilat...`;
         resultBox.style.display = "none";
 
-        // Gunakan koordinat default bypass langsung agar 100% instan dan tidak pernah nyangkut (stuck)
-        const userLat = -7.1645;
-        const userLng = 112.6033;
-
-        try {
-          await jalankanNavigasi(userLat, userLng, destLat, destLng, destName, kendaraan);
-        } catch (e) {
-          console.error(e);
-        } finally {
-          btn.disabled = false;
-          loader.style.display = "none";
+        if (!navigator.geolocation) {
+          jalankanNavigasi(-7.1645, 112.6033, destLat, destLng, destName, kendaraan, btn, loader);
+          return;
         }
+
+        let gpsDiproses = false;
+        const gpsTimeout = setTimeout(() => {
+          if (!gpsDiproses) {
+            gpsDiproses = true;
+            jalankanNavigasi(-7.1645, 112.6033, destLat, destLng, destName, kendaraan, btn, loader);
+          }
+        }, 3000);
+
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            if (!gpsDiproses) {
+              gpsDiproses = true;
+              clearTimeout(gpsTimeout);
+              jalankanNavigasi(pos.coords.latitude, pos.coords.longitude, destLat, destLng, destName, kendaraan, btn, loader);
+            }
+          },
+          () => {
+            if (!gpsDiproses) {
+              gpsDiproses = true;
+              clearTimeout(gpsTimeout);
+              jalankanNavigasi(-7.1645, 112.6033, destLat, destLng, destName, kendaraan, btn, loader);
+            }
+          },
+          { timeout: 2500, maximumAge: 60000, enableHighAccuracy: false }
+        );
       }
 
-      async function jalankanNavigasi(userLat, userLng, destLat, destLng, destName, kendaraan) {
+      async function jalankanNavigasi(userLat, userLng, destLat, destLng, destName, kendaraan, btn, loader) {
         const cuacaHulu = await getCuacaHulu();
-        let status = "AMAN", pesan = `Jalur utama menuju ${destName} aman dilalui.`;
+        let status = "AMAN", pesan = `Jalur menuju ${destName} aman.`;
 
         if (modeAI === "OFF") {
           let k = kondisiAirLokal.toLowerCase();
           if (k.includes("kering") || k.includes("aman") || k.includes("kaki")) {
             status = "AMAN";
-            pesan = `Kondisi air terpantau ${kondisiAirLokal}. Aman dilalui ${kendaraan}.`;
+            pesan = `Kondisi terkini aman untuk ${kendaraan}.`;
           } else {
             status = "BAHAYA";
-            pesan = `PERINGATAN! Terdeteksi genangan ${kondisiAirLokal}. Sistem mengaktifkan rute darurat.`;
+            pesan = `Terdeteksi genangan ${kondisiAirLokal}. Pengalihan rute aktif.`;
           }
         } else {
           status = kondisiAirLokal.toLowerCase().includes("lutut") ? "BAHAYA" : "AMAN";
-          pesan = status === "BAHAYA" ? "Jalur utama terhalang genangan tinggi." : "Rute utama lancar dan aman.";
+          pesan = status === "BAHAYA" ? "Jalur utama terhalang banjir." : "Rute utama lancar dan aman.";
         }
 
         document.getElementById("label-banjir").innerHTML = `Hulu: ${cuacaHulu} <br>Hilir: ${kondisiAirLokal}`;
-        await prosesRuteDinamis(userLat, userLng, destLat, destLng, destName, status, pesan);
+        await prosesRuteDinamis(userLat, userLng, destLat, destLng, destName, kendaraan, status, pesan);
+        
+        btn.disabled = false;
+        loader.style.display = "none";
       }
 
-      async function prosesRuteDinamis(userLat, userLng, destLat, destLng, destName, status, pesan) {
+      async function prosesRuteDinamis(userLat, userLng, destLat, destLng, destName, kendaraan, status, pesan) {
         const box = document.getElementById("result-box");
         const statusEl = document.getElementById("res-status");
         const pesanEl = document.getElementById("res-pesan");
@@ -593,7 +614,7 @@
 
         L.marker([userLat, userLng], {
           icon: L.divIcon({ className: "custom-pin", html: `<div style="background-color:#38bdf8;width:18px;height:18px;border-radius:50%;border:2px solid white;"></div>` })
-        }).addTo(activeLayerGroup).bindPopup("<b>Posisi Anda (Bypass)</b>").openPopup();
+        }).addTo(activeLayerGroup).bindPopup("<b>Posisi Anda</b>").openPopup();
 
         L.marker([destLat, destLng], {
           icon: L.divIcon({ className: "custom-pin", html: `<div style="background-color:#e63946;width:20px;height:20px;border-radius:50%;border:2px solid white;"></div>` })
@@ -604,24 +625,24 @@
 
         if (status.includes("AMAN")) {
           box.classList.add("aman");
-          statusEl.innerText = `✅ STATUS: RUTE AMAN`;
+          statusEl.innerText = `✅ STATUS: AMAN`;
           L.polyline(ruteFinal, { color: "#0f9d8f", weight: 5, opacity: 0.9 }).addTo(activeLayerGroup);
         } else {
           box.classList.add("bahaya");
-          statusEl.innerText = `🚨 JALUR UTAMA TERHADANG BANJIR!`;
+          statusEl.innerText = `🚨 JALUR UTAMA TERHADANG!`;
           L.polyline(ruteFinal, { color: "#3a86f0", weight: 5, opacity: 0.9, dashArray: "8, 8" }).addTo(activeLayerGroup);
           
           dataTitikEvakuasi.forEach(t => {
             L.marker([t.lat, t.lng], {
               icon: L.divIcon({ className: "custom-pin", html: `<div class="pin-evakuasi">✚</div>`, iconSize: [24,24], iconAnchor: [12,12] })
-            }).addTo(activeLayerGroup).bindPopup(`<b>🏥 ${t.nama}</b><br><small>${t.info}</small>`);
+            }).addTo(activeLayerGroup).bindPopup(`<b>🏥 ${t.nama}</b>`);
           });
         }
 
         const bounds = L.latLngBounds(ruteFinal);
         map.fitBounds(bounds, { padding: [40, 40] });
 
-        pesanEl.innerHTML = pesan + `<br><br><span style="font-size:0.7rem; opacity:0.6;">*Tujuan: ${destName} | Sistem: ${modeAI === "OFF" ? "Manual Laporan" : "AI"}</span>`;
+        pesanEl.innerHTML = pesan + `<br><br><span style="font-size:0.7rem; opacity:0.6;">*Sistem: ${modeAI === "OFF" ? "Manual Laporan" : "AI"}</span>`;
         box.style.display = "block";
       }
 

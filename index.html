@@ -791,7 +791,23 @@
 
         let labelText = `Hulu (Satelit): ${cuacaHulu} <br>Hilir (Firebase): ${kondisiAirLokal}`;
         document.getElementById("label-banjir").innerHTML = labelText;
-
+        try {
+          await prosesRuteDinamis(
+            userLat,
+            userLng,
+            destLat,
+            destLng,
+            destName,
+            kendaraan,
+            status,
+            pesan,
+          );
+        } catch (err) {
+          console.error("Gagal memproses rute:", err);
+        } finally {
+          btn.disabled = false;
+          loader.style.display = "none";
+        }
         await prosesRuteDinamis(
           userLat,
           userLng,
@@ -959,7 +975,7 @@
 
         const bounds = L.latLngBounds(ruteFinal);
         if (!status.includes("AMAN"))
-          merasList.forEach((m) => bounds.extend(L.latLngBounds(m.koordinat)));
+          merahList.forEach((m) => bounds.extend(L.latLngBounds(m.koordinat)));
         map.fitBounds(bounds, { padding: [50, 50] });
 
         let estimasiHTML = "";

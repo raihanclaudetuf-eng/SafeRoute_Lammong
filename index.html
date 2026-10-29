@@ -72,7 +72,16 @@
         width: 100%;
         flex-shrink: 0;
       }
-      #theme-toggle {
+
+      /* Header Action Buttons Container */
+      .header-actions {
+        display: inline-flex;
+        gap: 6px;
+        margin-left: 8px;
+        vertical-align: middle;
+      }
+
+      .icon-btn {
         background: var(--surface);
         border: 1px solid var(--border-color);
         border-radius: 50%;
@@ -85,17 +94,18 @@
         font-size: 1.1rem;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         color: var(--text-light);
-        margin-left: 6px;
         padding: 0;
         transition: transform 0.2s;
       }
-      #theme-toggle:hover {
+      .icon-btn:hover {
         transform: scale(1.1);
       }
 
       .title-wrapper {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
         gap: 8px;
         margin-bottom: 2px;
       }
@@ -314,7 +324,14 @@
       <div class="title-wrapper">
         <span class="title-icon">🛡️</span>
         <h1>SafeRoute Lamong</h1>
-        <button id="theme-toggle" title="Ganti Tema">🌙</button>
+        <div class="header-actions">
+          <button id="refresh-btn" class="icon-btn" title="Muat Ulang Halaman">
+            🔄
+          </button>
+          <button id="theme-toggle" class="icon-btn" title="Ganti Tema">
+            🌙
+          </button>
+        </div>
       </div>
       <p class="subtitle">
         Sistem Pantau Kondisi Jalan, Rute Alternatif & Posko Evakuasi
@@ -432,12 +449,21 @@
       }
       const db = firebase.database();
 
-      // Variabel Global untuk menampung data real-time dari Firebase
+      // Variabel Global & Listener Live untuk Mode AI & Laporan dari Firebase
+      let modeAI = "ON";
       let kondisiAirLokal = "Kering (Aman)";
       let kondisiArusLokal = "Tenang";
-      let modeAI = localStorage.getItem("sistem_ai_mode") || "ON";
 
-      // Pasang Listener Real-time ke Firebase
+      // Mendengarkan perubahan status AI dari Firebase secara real-time
+      db.ref("sistem_ai_mode").on("value", (snapshot) => {
+        const val = snapshot.val();
+        if (val) {
+          modeAI = val;
+          console.log("Status AI disinkronkan dari server:", modeAI);
+        }
+      });
+
+      // Mendengarkan laporan kedalaman air dari Firebase secara real-time
       db.ref("laporan_terkini").on("value", (snapshot) => {
         const data = snapshot.val();
         if (data) {
@@ -447,36 +473,43 @@
         }
       });
 
-      // FUNGSI ADMIN POP-UP
+      // FUNGSI ADMIN TERINTEGRASI FIREBASE (PILIHAN 1 / 2)
       function bukaAdmin() {
         let password = prompt("Akses Admin - Masukkan Password:");
 
         if (password === "lamongsaferai") {
-          let statusSekarang = localStorage.getItem("sistem_ai_mode") || "ON";
+          let statusSekarang = modeAI;
           let pilihan = prompt(
-            "STATUS AI SAAT INI: [" +
+            "STATUS AI SAAT INI (PUSAT): [" +
               statusSekarang +
               "]\n\n" +
               "Silakan ketik angka pilihan Anda:\n" +
-              "1 = NYALAKAN AI (Aktif)\n" +
-              "2 = MATIKAN AI (Off / Mode Demo)\n\n" +
+              "1 = NYALAKAN AI (Aktif di Semua HP)\n" +
+              "2 = MATIKAN AI (Off / Mode Demo di Semua HP)\n\n" +
               "Lalu klik OK.",
           );
 
           if (pilihan === null) return;
           let inputClean = pilihan.trim();
+
           if (inputClean === "1") {
-            localStorage.setItem("sistem_ai_mode", "ON");
-            alert(
-              "Sistem AI berhasil dinyalakan! [ON]\n\nHalaman akan dimuat ulang.",
-            );
-            location.reload();
+            db.ref("sistem_ai_mode").set("ON", (error) => {
+              if (!error) {
+                alert(
+                  "Sistem AI pusat berhasil diubah menjadi: ON\nSemua perangkat tersinkronisasi!",
+                );
+                location.reload();
+              }
+            });
           } else if (inputClean === "2") {
-            localStorage.setItem("sistem_ai_mode", "OFF");
-            alert(
-              "Sistem AI berhasil dimatikan! [OFF]\n\nHalaman akan dimuat ulang.",
-            );
-            location.reload();
+            db.ref("sistem_ai_mode").set("OFF", (error) => {
+              if (!error) {
+                alert(
+                  "Sistem AI pusat berhasil dimatikan: OFF\nSemua perangkat tersinkronisasi!",
+                );
+                location.reload();
+              }
+            });
           } else {
             alert("Pilihan tidak valid! Masukkan angka 1 atau 2 saja.");
           }
@@ -629,7 +662,6 @@
         resultBox.style.display = "none";
 
         if (!navigator.geolocation) {
-          // Bypass GPS Error jika tidak didukung
           jalankanNavigasi(
             -7.164539,
             112.603332,
@@ -658,7 +690,6 @@
           },
           (error) => {
             console.warn("GPS Gagal Terbaca. Memakai lokasi default (Bypass).");
-            // Bypass GPS Error otomatis ke Bunder Gresik saat presentasi
             jalankanNavigasi(
               -7.164539,
               112.603332,
@@ -914,7 +945,7 @@
 
         const bounds = L.latLngBounds(ruteFinal);
         if (!status.includes("AMAN"))
-          merahList.forEach((m) => bounds.extend(L.latLngBounds(m.koordinat)));
+          merasList.forEach((m) => bounds.extend(L.latLngBounds(m.koordinat)));
         map.fitBounds(bounds, { padding: [50, 50] });
 
         let estimasiHTML = "";
@@ -951,6 +982,12 @@
           `<br><br><span style="font-size:0.75rem; opacity:0.6; color:#94a3b8;">*Tujuan: ${destName} | Sistem: ${modeAI === "OFF" ? "Manual Laporan" : "AI " + GEMINI_MODEL}</span>`;
         box.style.display = "block";
       }
+
+      // Tombol Refresh / Muat Ulang Halaman
+      const refreshBtn = document.getElementById("refresh-btn");
+      refreshBtn.addEventListener("click", () => {
+        location.reload();
+      });
 
       const themeToggle = document.getElementById("theme-toggle");
       themeToggle.addEventListener("click", () => {

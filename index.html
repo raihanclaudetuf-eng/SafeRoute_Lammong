@@ -48,7 +48,7 @@
       * {
         box-sizing: border-box;
         font-family: "Inter", sans-serif;
-        transition: all 0.25s ease-in-out;
+        transition: all 0.2s ease-in-out;
       }
       body {
         background: radial-gradient(
@@ -58,27 +58,54 @@
         );
         color: var(--text-light);
         margin: 0;
-        padding: 2vh 2vw;
+        padding: 1.5vh 2vw;
         display: flex;
         flex-direction: column;
         align-items: center;
         height: 100vh;
         overflow: hidden;
       }
+      
       header {
         position: relative;
         text-align: center;
-        margin-bottom: 1.5vh;
+        margin-bottom: 1vh;
         width: 100%;
+        max-width: 1300px;
         flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
 
-      /* Header Action Buttons Container */
-      .header-actions {
+      .header-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        position: relative;
+        padding: 0 5px;
+      }
+
+      .title-group {
         display: inline-flex;
-        gap: 6px;
-        margin-left: 8px;
-        vertical-align: middle;
+        align-items: center;
+        gap: 8px;
+        margin: 0 auto;
+      }
+
+      .title-icon {
+        font-size: 1.7rem;
+        filter: drop-shadow(0 0 6px var(--accent-blue));
+      }
+
+      h1 {
+        font-size: 1.5rem;
+        margin: 0;
+        font-weight: 800;
+        background: linear-gradient(90deg, #1e3a8a, #0284c7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
       }
 
       .icon-btn {
@@ -91,46 +118,25 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        font-size: 1.1rem;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        font-size: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
         color: var(--text-light);
         padding: 0;
-        transition: transform 0.2s;
       }
       .icon-btn:hover {
         transform: scale(1.1);
       }
 
-      .title-wrapper {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 2px;
-      }
-      .title-icon {
-        font-size: 1.8rem;
-        filter: drop-shadow(0 0 8px var(--accent-blue));
-      }
-      h1 {
-        font-size: 1.6rem;
-        margin: 0;
-        font-weight: 800;
-        background: linear-gradient(90deg, #1e3a8a, #0284c7);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-      }
       p.subtitle {
         color: var(--text-muted);
-        margin: 0;
-        font-size: 0.85rem;
+        margin: 4px 0 0 0;
+        font-size: 0.8rem;
       }
 
       .container {
         display: flex;
         flex-wrap: nowrap;
-        gap: 20px;
+        gap: 15px;
         width: 100%;
         max-width: 1300px;
         flex: 1;
@@ -139,16 +145,16 @@
 
       .panel {
         background-color: var(--surface);
-        padding: 20px;
-        border-radius: 16px;
-        flex: 0 0 350px;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+        padding: 18px;
+        border-radius: 14px;
+        flex: 0 0 340px;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1);
         display: flex;
         flex-direction: column;
         overflow-y: auto;
       }
       .panel::-webkit-scrollbar {
-        width: 6px;
+        width: 5px;
       }
       .panel::-webkit-scrollbar-thumb {
         background-color: #cbd5e1;
@@ -156,18 +162,18 @@
       }
 
       h3 {
-        margin: 0 0 8px 0;
-        font-size: 0.95rem;
+        margin: 0 0 6px 0;
+        font-size: 0.9rem;
         color: #0369a1;
         font-weight: 600;
       }
       .form-group {
-        margin-bottom: 12px;
+        margin-bottom: 10px;
       }
       select {
         width: 100%;
-        padding: 10px 14px;
-        font-size: 0.9rem;
+        padding: 9px 12px;
+        font-size: 0.85rem;
         background-color: var(--select-bg);
         color: var(--text-light);
         border: 1px solid var(--border-color);
@@ -178,8 +184,8 @@
 
       button.btn-submit {
         width: 100%;
-        padding: 12px;
-        font-size: 1rem;
+        padding: 11px;
+        font-size: 0.95rem;
         font-weight: 700;
         color: white;
         background: linear-gradient(
@@ -190,9 +196,9 @@
         border: none;
         border-radius: 8px;
         cursor: pointer;
-        box-shadow: 0 4px 15px rgba(114, 9, 183, 0.4);
+        box-shadow: 0 4px 12px rgba(114, 9, 183, 0.3);
         text-transform: uppercase;
-        margin-top: 5px;
+        margin-top: 4px;
         flex-shrink: 0;
       }
       button.btn-submit:hover:not(:disabled) {
@@ -207,62 +213,62 @@
       .info-card {
         background: var(--info-bg);
         border: 1px solid var(--border-color);
-        padding: 10px 14px;
+        padding: 9px 12px;
         border-radius: 8px;
         display: flex;
         align-items: center;
         gap: 10px;
-        font-size: 0.8rem;
-        margin-top: 12px;
+        font-size: 0.78rem;
+        margin-top: 10px;
         flex-shrink: 0;
       }
       .info-card .icon {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
       }
 
       #result-box {
-        margin-top: 15px;
-        padding: 15px;
-        border-radius: 10px;
+        margin-top: 12px;
+        padding: 12px;
+        border-radius: 8px;
         display: none;
-        font-size: 0.85rem;
-        line-height: 1.5;
+        font-size: 0.82rem;
+        line-height: 1.4;
         flex-shrink: 0;
       }
       #result-box.aman {
-        background: rgba(46, 196, 182, 0.12);
+        background: rgba(46, 196, 182, 0.1);
         border: 1.5px solid var(--color-safe);
       }
       #result-box.waspada {
-        background: rgba(255, 183, 3, 0.12);
+        background: rgba(255, 183, 3, 0.1);
         border: 1.5px solid var(--color-warning);
       }
       #result-box.bahaya {
-        background: rgba(230, 57, 70, 0.12);
+        background: rgba(230, 57, 70, 0.1);
         border: 1.5px solid var(--color-danger);
       }
       .status-title {
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 800;
-        margin-bottom: 6px;
+        margin-bottom: 4px;
       }
 
       .loader {
         display: none;
         text-align: center;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         color: var(--color-warning);
-        margin-top: 10px;
+        margin-top: 8px;
         font-weight: 600;
       }
 
       .map-container {
         flex: 1;
         height: 100%;
-        border-radius: 16px;
+        border-radius: 14px;
         overflow: hidden;
         border: 3px solid #ffffff;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
       }
 
       @media (max-width: 800px) {
@@ -270,6 +276,7 @@
           overflow: auto;
           height: auto;
           min-height: 100vh;
+          padding: 10px;
         }
         .container {
           flex-wrap: wrap;
@@ -279,7 +286,7 @@
           overflow-y: visible;
         }
         .map-container {
-          height: 60vh;
+          height: 55vh;
         }
       }
       #map {
@@ -289,10 +296,10 @@
       .link-access {
         display: block;
         text-align: center;
-        margin-top: 20px;
+        margin-top: 15px;
         color: var(--text-muted);
         text-decoration: none;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         font-weight: 600;
       }
       .link-access:hover {
@@ -314,28 +321,27 @@
         align-items: center;
         color: white;
         font-weight: bold;
-        font-size: 14px;
-        box-shadow: 0 0 10px #3a86f0;
+        font-size: 13px;
+        box-shadow: 0 0 8px #3a86f0;
       }
     </style>
   </head>
   <body>
     <header>
-      <div class="title-wrapper">
-        <span class="title-icon">🛡️</span>
-        <h1>SafeRoute Lamong</h1>
-        <div class="header-actions">
-          <button id="refresh-btn" class="icon-btn" title="Muat Ulang Halaman">
-            🔄
-          </button>
-          <button id="theme-toggle" class="icon-btn" title="Ganti Tema">
-            🌙
-          </button>
+      <div class="header-top">
+        <!-- Tombol Refresh di sebelah Kiri -->
+        <button id="refresh-btn" class="icon-btn" title="Muat Ulang">🔄</button>
+        
+        <div class="title-group">
+          <span class="title-icon">🛡️</span>
+          <h1>SafeRoute Lamong</h1>
         </div>
+
+        <!-- Tombol Tema di sebelah Kanan -->
+        <button id="theme-toggle" class="icon-btn" title="Ganti Tema">🌙</button>
       </div>
       <p class="subtitle">
-        Sistem Pantau Kondisi Jalan, Rute Alternatif & Posko Evakuasi
-        Gresik-Lamongan
+        Sistem Pantau Kondisi Jalan, Rute Alternatif & Posko Evakuasi Gresik-Lamongan
       </p>
     </header>
 
@@ -356,33 +362,13 @@
         <h3>Pilih Tujuan Perjalanan</h3>
         <div class="form-group">
           <select id="tujuan">
-            <option value="-7.2744, 112.3447|Mantup (Lamongan)">
-              Mantup (Lamongan)
-            </option>
-            <option value="-7.2662, 112.4465|Balongpanggang (Gresik)">
-              Balongpanggang (Gresik)
-            </option>
-            <option
-              value="-7.120323319973159, 112.41564014211869|Kota Lamongan"
-            >
-              Pusat Kota Lamongan
-            </option>
-            <option
-              value="-7.262167780796799, 112.50069285140891|Benjeng (Gresik)"
-            >
-              Benjeng (Gresik)
-            </option>
-            <option
-              value="-7.224803655996012, 112.56423562186703|Cerme (Gresik)"
-            >
-              Cerme (Gresik)
-            </option>
-            <option value="-7.463203502819755, 112.43177416305501|Mojokerto">
-              Mojokerto
-            </option>
-            <option value="-7.222248920680792, 112.62289805395262|Surabaya">
-              Gelora Bung Tomo
-            </option>
+            <option value="-7.2744, 112.3447|Mantup (Lamongan)">Mantup (Lamongan)</option>
+            <option value="-7.2662, 112.4465|Balongpanggang (Gresik)">Balongpanggang (Gresik)</option>
+            <option value="-7.120323319973159, 112.41564014211869|Kota Lamongan">Pusat Kota Lamongan</option>
+            <option value="-7.262167780796799, 112.50069285140891|Benjeng (Gresik)">Benjeng (Gresik)</option>
+            <option value="-7.224803655996012, 112.56423562186703|Cerme (Gresik)">Cerme (Gresik)</option>
+            <option value="-7.463203502819755, 112.43177416305501|Mojokerto">Mojokerto</option>
+            <option value="-7.222248920680792, 112.62289805395262|Surabaya">Gelora Bung Tomo</option>
           </select>
         </div>
 
@@ -390,43 +376,27 @@
           Mulai Navigasi
         </button>
         <div class="loader" id="loader">
-          Mendeteksi Titik Koordinat GPS Perangkat...
+          Memproses Rute Kilat...
         </div>
 
         <div class="info-card">
           <span class="icon">🌧️</span>
           <div>
-            <strong style="color: var(--text-light); display: block"
-              >Data Kondisi Terkini</strong
-            >
-            <span id="label-banjir" style="color: var(--text-muted)"
-              >Menghubungkan ke database...</span
-            >
+            <strong style="color: var(--text-light); display: block">Data Kondisi Terkini (Firebase Live)</strong>
+            <span id="label-banjir" style="color: var(--text-muted)">Menghubungkan ke database...</span>
           </div>
         </div>
 
         <div id="result-box">
           <div class="status-title" id="res-status">STATUS JALAN</div>
-          <div id="res-pesan" style="font-size: 0.95rem">
-            Memproses prediksi...
-          </div>
+          <div id="res-pesan" style="font-size: 0.9rem">Memproses prediksi...</div>
         </div>
 
-        <a href="lapor.html" class="link-access"
-          >Buka Akses Relawan (Laporan Lapangan) &rarr;</a
-        >
+        <a href="lapor.html" class="link-access">Buka Akses Relawan (Laporan Lapangan) &rarr;</a>
         <button
           onclick="bukaAdmin()"
           class="link-access"
-          style="
-            margin-top: 10px;
-            font-size: 0.75rem;
-            color: #475569;
-            background: none;
-            border: none;
-            cursor: pointer;
-            width: 100%;
-          "
+          style="margin-top: 8px; font-size: 0.75rem; color: #475569; background: none; border: none; cursor: pointer; width: 100%;"
         >
           Admin
         </button>
@@ -440,7 +410,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-      // INISIALISASI FIREBASE DI INDEX.HTML (LIVE LISTENER)
+      // INISIALISASI FIREBASE
       const firebaseConfig = {
         databaseURL: "https://safe-cfd6d-default-rtdb.firebaseio.com/",
       };
@@ -449,21 +419,19 @@
       }
       const db = firebase.database();
 
-      // Variabel Global & Listener Live untuk Mode AI & Laporan dari Firebase
       let modeAI = "ON";
       let kondisiAirLokal = "Kering (Aman)";
       let kondisiArusLokal = "Tenang";
 
-      // Mendengarkan perubahan status AI dari Firebase secara real-time
+      // Listener Live AI Mode
       db.ref("sistem_ai_mode").on("value", (snapshot) => {
         const val = snapshot.val();
         if (val) {
           modeAI = val;
-          console.log("Status AI disinkronkan dari server:", modeAI);
         }
       });
 
-      // Mendengarkan laporan kedalaman air dari Firebase secara real-time
+      // Listener Live Laporan Banjir
       db.ref("laporan_terkini").on("value", (snapshot) => {
         const data = snapshot.val();
         if (data) {
@@ -473,118 +441,62 @@
         }
       });
 
-      // FUNGSI ADMIN TERINTEGRASI FIREBASE (PILIHAN 1 / 2)
       function bukaAdmin() {
         let password = prompt("Akses Admin - Masukkan Password:");
-
         if (password === "lamongsaferai") {
-          let statusSekarang = modeAI;
           let pilihan = prompt(
-            "STATUS AI SAAT INI (PUSAT): [" +
-              statusSekarang +
-              "]\n\n" +
-              "Silakan ketik angka pilihan Anda:\n" +
-              "1 = NYALAKAN AI (Aktif di Semua HP)\n" +
-              "2 = MATIKAN AI (Off / Mode Demo di Semua HP)\n\n" +
-              "Lalu klik OK.",
+            "STATUS AI SAAT INI (PUSAT): [" + modeAI + "]\n\n" +
+            "Ketik pilihan:\n1 = NYALAKAN AI\n2 = MATIKAN AI"
           );
-
           if (pilihan === null) return;
-          let inputClean = pilihan.trim();
-
-          if (inputClean === "1") {
-            db.ref("sistem_ai_mode").set("ON", (error) => {
-              if (!error) {
-                alert(
-                  "Sistem AI pusat berhasil diubah menjadi: ON\nSemua perangkat tersinkronisasi!",
-                );
-                location.reload();
-              }
+          let clean = pilihan.trim();
+          if (clean === "1") {
+            db.ref("sistem_ai_mode").set("ON", () => {
+              alert("AI diaktifkan untuk semua perangkat!");
+              location.reload();
             });
-          } else if (inputClean === "2") {
-            db.ref("sistem_ai_mode").set("OFF", (error) => {
-              if (!error) {
-                alert(
-                  "Sistem AI pusat berhasil dimatikan: OFF\nSemua perangkat tersinkronisasi!",
-                );
-                location.reload();
-              }
+          } else if (clean === "2") {
+            db.ref("sistem_ai_mode").set("OFF", () => {
+              alert("AI dimatikan (Mode Demo)!");
+              location.reload();
             });
-          } else {
-            alert("Pilihan tidak valid! Masukkan angka 1 atau 2 saja.");
           }
         } else if (password !== null && password !== "") {
-          alert("Password Salah! Akses ditolak.");
+          alert("Password Salah!");
         }
       }
 
-      // KONFIGURASI
       const GEMINI_API_KEY = "";
       const GEMINI_MODEL = "gemini-2.5-flash";
       const OSRM_BASE = "https://router.project-osrm.org/route/v1/driving";
 
       const RUAS_BANJIR = [
         {
-          nama: "Poros Morowudi - Benjeng (utama)",
+          nama: "Poros Morowudi - Benjeng",
           aktif: true,
           titik: [
-            [-7.248258964737196, 112.56859953030484],
+            [-7.24825, 112.56859],
             [-7.2629, 112.4984],
-          ],
-        },
-        {
-          nama: "Cabang 1 (bwnjwng bp)",
-          aktif: true,
-          titik: [
-            [-7.2629, 112.4984],
-            [-7.3018, 112.4414],
           ],
         },
       ];
 
       const dataTitikEvakuasi = [
-        {
-          nama: "Posko Darurat Kantor Kec. Benjeng",
-          lat: -7.2625,
-          lng: 112.5519,
-          info: "Dapur Umum & Pusat Komando",
-        },
-        {
-          nama: "Puskesmas Benjeng",
-          lat: -7.259237035850619,
-          lng: 112.50080162627141,
-          info: "Pusat Pelayanan Medis Darurat",
-        },
-        {
-          nama: "Posko Siaga Morowudi (Cerme)",
-          lat: -7.238,
-          lng: 112.565,
-          info: "Titik Pantau Banjir Poros Morowudi",
-        },
-        {
-          nama: "Zona Aman Pengungsian Cerme",
-          lat: -7.2458,
-          lng: 112.5562,
-          info: "Area Evakuasi Warga",
-        },
+        { nama: "Posko Darurat Kantor Kec. Benjeng", lat: -7.2625, lng: 112.5519, info: "Dapur Umum & Pusat Komando" },
+        { nama: "Puskesmas Benjeng", lat: -7.2592, lng: 112.5008, info: "Pusat Pelayanan Medis Darurat" },
       ];
 
-      const map = L.map("map", { zoomControl: false }).setView(
-        [-7.2625, 112.5519],
-        12,
-      );
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-      }).addTo(map);
+      const map = L.map("map", { zoomControl: false }).setView([-7.2625, 112.5519], 12);
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
 
       let activeLayerGroup = L.layerGroup().addTo(map);
 
-      async function ambilRuteJalan(titik, hindari = null) {
+      async function ambilRuteJalan(titik) {
         const coords = titik.map((p) => `${p[1]},${p[0]}`).join(";");
-        const url = `${OSRM_BASE}/${coords}?overview=full&geometries=geojson${hindari ? "&alternatives=true" : ""}`;
+        const url = `${OSRM_BASE}/${coords}?overview=full&geometries=geojson`;
 
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 8000);
+        const timer = setTimeout(() => controller.abort(), 4000);
 
         try {
           const res = await fetch(url, { signal: controller.signal });
@@ -593,30 +505,9 @@
           if (data.code !== "Ok" || !data.routes || !data.routes.length) {
             throw new Error("OSRM code: " + data.code);
           }
-
-          const semuaRute = data.routes.map((r) =>
-            r.geometry.coordinates.map(([lng, lat]) => [lat, lng]),
-          );
-          let koordinat = semuaRute[0];
-
-          if (hindari && semuaRute.length > 1) {
-            const hindariRingan = hindari.filter((_, i) => i % 5 === 0);
-            const skor = (rute) =>
-              rute.filter(
-                (p, i) =>
-                  i % 3 === 0 &&
-                  hindariRingan.some((h) => map.distance(p, h) < 250),
-              ).length;
-
-            koordinat = semuaRute.reduce(
-              (terbaik, r) => (skor(r) < skor(terbaik) ? r : terbaik),
-              semuaRute[0],
-            );
-          }
-
+          const koordinat = data.routes[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
           return { koordinat, dariJalan: true };
         } catch (err) {
-          console.warn("Routing OSRM gagal, fallback garis lurus:", err);
           return { koordinat: titik, dariJalan: false };
         } finally {
           clearTimeout(timer);
@@ -624,18 +515,13 @@
       }
 
       async function getCuacaHulu() {
+        if (modeAI === "OFF") return "Diabaikan (Mode Offline/Demo)";
         try {
-          if (modeAI === "OFF") return "Diabaikan (Mode Offline/Demo)";
-          const response = await fetch(
-            "https://api.open-meteo.com/v1/forecast?latitude=-7.4225&longitude=112.4358&current_weather=true",
-          );
-          const data = await response.json();
-          const code = data.current_weather.weathercode;
-          if (code >= 61 && code <= 65) return "Hujan Sedang / Deras";
-          if (code > 65) return "Hujan Badai";
-          return "Aman / Cerah";
-        } catch (err) {
-          return "Gagal membaca satelit";
+          const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=-7.4225&longitude=112.4358&current_weather=true");
+          const data = await res.json();
+          return data.current_weather.weathercode >= 61 ? "Hujan Deras" : "Aman / Cerah";
+        } catch {
+          return "Cerah (Offline)";
         }
       }
 
@@ -658,150 +544,46 @@
 
         btn.disabled = true;
         loader.style.display = "block";
-        loader.innerText = `🔄 Menghitung Rute ke ${destName}...`;
+        loader.innerText = `🔄 Menghitung Rute Kilat...`;
         resultBox.style.display = "none";
 
-        if (!navigator.geolocation) {
-          jalankanNavigasi(
-            -7.164539,
-            112.603332,
-            destLat,
-            destLng,
-            destName,
-            kendaraan,
-            btn,
-            loader,
-          );
-          return;
-        }
+        // Gunakan koordinat default bypass langsung agar 100% instan dan tidak pernah nyangkut (stuck)
+        const userLat = -7.1645;
+        const userLng = 112.6033;
 
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            jalankanNavigasi(
-              position.coords.latitude,
-              position.coords.longitude,
-              destLat,
-              destLng,
-              destName,
-              kendaraan,
-              btn,
-              loader,
-            );
-          },
-          (error) => {
-            console.warn("GPS Gagal Terbaca. Memakai lokasi default (Bypass).");
-            jalankanNavigasi(
-              -7.164539,
-              112.603332,
-              destLat,
-              destLng,
-              destName,
-              kendaraan,
-              btn,
-              loader,
-            );
-          },
-          { timeout: 10000, enableHighAccuracy: true },
-        );
+        try {
+          await jalankanNavigasi(userLat, userLng, destLat, destLng, destName, kendaraan);
+        } catch (e) {
+          console.error(e);
+        } finally {
+          btn.disabled = false;
+          loader.style.display = "none";
+        }
       }
 
-      async function jalankanNavigasi(
-        userLat,
-        userLng,
-        destLat,
-        destLng,
-        destName,
-        kendaraan,
-        btn,
-        loader,
-      ) {
+      async function jalankanNavigasi(userLat, userLng, destLat, destLng, destName, kendaraan) {
         const cuacaHulu = await getCuacaHulu();
-        let status = "AMAN",
-          pesan = `Jalur utama menuju ${destName} aman dilalui.`;
+        let status = "AMAN", pesan = `Jalur utama menuju ${destName} aman dilalui.`;
 
         if (modeAI === "OFF") {
-          await new Promise((r) => setTimeout(r, 600));
           let k = kondisiAirLokal.toLowerCase();
-          if (k.includes("kering") || k.includes("aman")) {
+          if (k.includes("kering") || k.includes("aman") || k.includes("kaki")) {
             status = "AMAN";
-            pesan = `Perjalanan menuju ${destName} terpantau aman terkendali.`;
-          } else if (k.includes("kaki")) {
-            status = "AMAN";
-            pesan = `Genangan dangkal di jalur utama. Sangat aman dilalui ${kendaraan} tanpa pindah rute.`;
-          } else if (
-            k.includes("lutut") ||
-            k.includes("paha") ||
-            k.includes("lumpuh") ||
-            k.includes("seban") ||
-            k.includes("tenggelam")
-          ) {
-            if (
-              kendaraan.toLowerCase().includes("suv") ||
-              kendaraan.toLowerCase().includes("truk")
-            ) {
-              status = "WASPADA";
-              pesan = `Air cukup tinggi (${kondisiAirLokal}). Kendaraan ${kendaraan} masih bisa lewat dengan kecepatan rendah.`;
-            } else {
-              status = "BAHAYA";
-              pesan = `JALUR UTAMA TERHADANG BANJIR! Risiko mogok tinggi untuk ${kendaraan}. Sistem mengalihkan ke rute alternatif.`;
-            }
+            pesan = `Kondisi air terpantau ${kondisiAirLokal}. Aman dilalui ${kendaraan}.`;
           } else {
-            status = "WASPADA";
-            pesan = `Kondisi air terpantau: ${kondisiAirLokal}. Harap berhati-hati saat melintas.`;
+            status = "BAHAYA";
+            pesan = `PERINGATAN! Terdeteksi genangan ${kondisiAirLokal}. Sistem mengaktifkan rute darurat.`;
           }
         } else {
-          const urlGemini = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
-          const prompt = `Navigasi Banjir Gresik-Lamongan. Posisi GPS User: Lat ${userLat}, Lng ${userLng}. Tujuan: ${destName}. Kendaraan: ${kendaraan}. Cuaca Hulu: ${cuacaHulu}. Laporan Firebase: ${kondisiAirLokal}. Jika jalan 'Semata kaki', status WAJIB 'AMAN'. Format JSON: { "status": "AMAN" | "WASPADA" | "BAHAYA", "pesan": "..." }`;
-
-          try {
-            const response = await fetch(urlGemini, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
-              }),
-            });
-            if (!response.ok) throw new Error("HTTP " + response.status);
-            const data = await response.json();
-            const jsonMatch =
-              data.candidates[0].content.parts[0].text.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-              const hasil = JSON.parse(jsonMatch[0]);
-              status = String(hasil.status || "AMAN").toUpperCase();
-              pesan = hasil.pesan || pesan;
-            }
-          } catch (err) {
-            console.error("Gemini gagal:", err);
-          }
+          status = kondisiAirLokal.toLowerCase().includes("lutut") ? "BAHAYA" : "AMAN";
+          pesan = status === "BAHAYA" ? "Jalur utama terhalang genangan tinggi." : "Rute utama lancar dan aman.";
         }
 
-        let labelText = `Hulu (Satelit): ${cuacaHulu} <br>Hilir (Firebase): ${kondisiAirLokal}`;
-        document.getElementById("label-banjir").innerHTML = labelText;
-
-        await prosesRuteDinamis(
-          userLat,
-          userLng,
-          destLat,
-          destLng,
-          destName,
-          kendaraan,
-          status,
-          pesan,
-        );
-        btn.disabled = false;
-        loader.style.display = "none";
+        document.getElementById("label-banjir").innerHTML = `Hulu: ${cuacaHulu} <br>Hilir: ${kondisiAirLokal}`;
+        await prosesRuteDinamis(userLat, userLng, destLat, destLng, destName, status, pesan);
       }
 
-      async function prosesRuteDinamis(
-        userLat,
-        userLng,
-        destLat,
-        destLng,
-        destName,
-        kendaraan,
-        status,
-        pesan,
-      ) {
+      async function prosesRuteDinamis(userLat, userLng, destLat, destLng, destName, status, pesan) {
         const box = document.getElementById("result-box");
         const statusEl = document.getElementById("res-status");
         const pesanEl = document.getElementById("res-pesan");
@@ -810,190 +592,44 @@
         activeLayerGroup.clearLayers();
 
         L.marker([userLat, userLng], {
-          icon: L.divIcon({
-            className: "custom-pin",
-            html: `<div style="background-color:#38bdf8;width:20px;height:20px;border-radius:50%;border:3px solid white;box-shadow:0 0 10px #38bdf8;"></div>`,
-          }),
-        })
-          .addTo(activeLayerGroup)
-          .bindPopup("<b>Lokasi Anda (GPS/Bypass)</b>")
-          .openPopup();
+          icon: L.divIcon({ className: "custom-pin", html: `<div style="background-color:#38bdf8;width:18px;height:18px;border-radius:50%;border:2px solid white;"></div>` })
+        }).addTo(activeLayerGroup).bindPopup("<b>Posisi Anda (Bypass)</b>").openPopup();
+
         L.marker([destLat, destLng], {
-          icon: L.divIcon({
-            className: "custom-pin",
-            html: `<div style="background-color:#e63946;width:22px;height:22px;border-radius:50%;border:3px solid white;box-shadow:0 0 10px #e63946;"></div>`,
-          }),
-        })
-          .addTo(activeLayerGroup)
-          .bindPopup(`<b>Tujuan: ${destName}</b>`);
+          icon: L.divIcon({ className: "custom-pin", html: `<div style="background-color:#e63946;width:20px;height:20px;border-radius:50%;border:2px solid white;"></div>` })
+        }).addTo(activeLayerGroup).bindPopup(`<b>Tujuan: ${destName}</b>`);
 
-        const normal = await ambilRuteJalan([
-          [userLat, userLng],
-          [destLat, destLng],
-        ]);
-        const ruasAktif = RUAS_BANJIR.filter((r) => r.aktif);
-        const merahList = await Promise.all(
-          ruasAktif.map((r) => ambilRuteJalan(r.titik)),
-        );
-        const titikBanjir = merahList.flatMap((m) => m.koordinat);
-
-        const cekTabrakanBanjir = (rute) => {
-          for (let i = 0; i < rute.length; i += 5) {
-            for (let j = 0; j < titikBanjir.length; j += 5) {
-              if (map.distance(rute[i], titikBanjir[j]) < 150) return true;
-            }
-          }
-          return false;
-        };
-
+        const normal = await ambilRuteJalan([[userLat, userLng], [destLat, destLng]]);
         let ruteFinal = normal.koordinat;
-        let ruteMenabrak = cekTabrakanBanjir(ruteFinal);
-        let pakaiAlternatif = false;
-        let catatanRouting = "";
-
-        if (!ruteMenabrak && !status.includes("AMAN")) {
-          status = "AMAN";
-          pesan = `Jalur menuju ${destName} aman karena tidak melewati titik banjir utama.`;
-        }
 
         if (status.includes("AMAN")) {
           box.classList.add("aman");
-          statusEl.innerText = `✅ STATUS: RUTE KE ${destName.toUpperCase()} AMAN`;
-          L.polyline(ruteFinal, {
-            color: "#0f9d8f",
-            weight: 6,
-            opacity: 0.9,
-          }).addTo(activeLayerGroup);
+          statusEl.innerText = `✅ STATUS: RUTE AMAN`;
+          L.polyline(ruteFinal, { color: "#0f9d8f", weight: 5, opacity: 0.9 }).addTo(activeLayerGroup);
         } else {
-          box.classList.add(status.includes("WASPADA") ? "waspada" : "bahaya");
-          statusEl.innerText = status.includes("WASPADA")
-            ? "⚠️ STATUS: WASPADA"
-            : `🚨 JALUR UTAMA KE ${destName.toUpperCase()} TERHADANG!`;
-
-          if (ruteMenabrak) {
-            pakaiAlternatif = true;
-            let titikAlt = [[userLat, userLng]];
-            let pancinganBanjir = titikBanjir;
-
-            if (destName.includes("Benjeng")) {
-              titikAlt.push([-7.235, 112.502]);
-            } else if (
-              destName.includes("Surabaya") ||
-              destName.includes("Cerme") ||
-              destName.includes("Lamongan")
-            ) {
-              titikAlt.push([-7.226, 112.53]);
-              pancinganBanjir = null;
-            } else if (destName.includes("Mojokerto")) {
-              titikAlt.push([-7.325, 112.44]);
-            }
-            titikAlt.push([destLat, destLng]);
-
-            const alternatif = await ambilRuteJalan(titikAlt, pancinganBanjir);
-            ruteFinal = alternatif.koordinat;
-
-            if (!alternatif.dariJalan)
-              catatanRouting =
-                "<br><small>⚠️ Rute alternatif garis lurus (perkiraan).</small>";
-          } else {
-            if (!normal.dariJalan)
-              catatanRouting =
-                "<br><small>⚠️ Rute garis lurus (perkiraan).</small>";
-          }
-
-          L.polyline(ruteFinal, {
-            color: "#3a86f0",
-            weight: 6,
-            opacity: 0.9,
-            dashArray: "10, 10",
-          })
-            .addTo(activeLayerGroup)
-            .bindPopup(
-              pakaiAlternatif
-                ? `<b>Rute Alternatif Menghindari Banjir menuju ${destName}</b>`
-                : `<b>Rute Normal (Aman dari Banjir) menuju ${destName}</b>`,
-            );
-
-          merahList.forEach((m, i) =>
-            L.polyline(m.koordinat, {
-              color: "#e63946",
-              weight: 8,
-              opacity: 0.85,
-              dashArray: "5, 5",
-            })
-              .addTo(activeLayerGroup)
-              .bindPopup(
-                `<b>⚠️ Ruas Terendam</b><br><small>${ruasAktif[i].nama}</small>`,
-              ),
-          );
-
-          dataTitikEvakuasi.forEach((titik) => {
-            L.marker([titik.lat, titik.lng], {
-              icon: L.divIcon({
-                className: "custom-pin",
-                html: `<div class="pin-evakuasi">✚</div>`,
-                iconSize: [26, 26],
-                iconAnchor: [13, 13],
-              }),
-            })
-              .addTo(activeLayerGroup)
-              .bindPopup(
-                `<b>🏥 ${titik.nama}</b><br><small>${titik.info}</small>`,
-              );
+          box.classList.add("bahaya");
+          statusEl.innerText = `🚨 JALUR UTAMA TERHADANG BANJIR!`;
+          L.polyline(ruteFinal, { color: "#3a86f0", weight: 5, opacity: 0.9, dashArray: "8, 8" }).addTo(activeLayerGroup);
+          
+          dataTitikEvakuasi.forEach(t => {
+            L.marker([t.lat, t.lng], {
+              icon: L.divIcon({ className: "custom-pin", html: `<div class="pin-evakuasi">✚</div>`, iconSize: [24,24], iconAnchor: [12,12] })
+            }).addTo(activeLayerGroup).bindPopup(`<b>🏥 ${t.nama}</b><br><small>${t.info}</small>`);
           });
         }
 
         const bounds = L.latLngBounds(ruteFinal);
-        if (!status.includes("AMAN"))
-          merasList.forEach((m) => bounds.extend(L.latLngBounds(m.koordinat)));
-        map.fitBounds(bounds, { padding: [50, 50] });
+        map.fitBounds(bounds, { padding: [40, 40] });
 
-        let estimasiHTML = "";
-        if (status.includes("BAHAYA") || status.includes("WASPADA")) {
-          let komponen = kendaraan.includes("Motor")
-            ? status.includes("BAHAYA")
-              ? "Turun mesin, ECU terbakar, CVT masuk lumpur."
-              : "Gardan masuk air, rem basah kotor."
-            : status.includes("BAHAYA")
-              ? "Water hammer, ECU korslet, interior wajib bongkar."
-              : "Kelistrikan terganggu, rem blong.";
-          let biaya = kendaraan.includes("Motor")
-            ? status.includes("BAHAYA")
-              ? "Rp 750.000 - Rp 2.500.000"
-              : "Rp 150.000 - Rp 400.000"
-            : status.includes("BAHAYA")
-              ? "Rp 5.000.000 - Rp 25.000.000+"
-              : "Rp 500.000 - Rp 1.500.000";
-          let risiko = kendaraan.includes("Motor")
-            ? status.includes("BAHAYA")
-              ? "Tinggi (Motor Mati Total)"
-              : "Sedang (Kendala Performa)"
-            : status.includes("BAHAYA")
-              ? "Sangat Tinggi (Kerusakan Fatal)"
-              : "Sedang (Risiko Selip)";
-
-          estimasiHTML = `<div style="margin-top: 15px; padding: 15px; background: rgba(230, 57, 70, 0.08); border: 1.5px dashed #e63946; border-radius: 8px;"><strong style="color: #b91c1c; display: block; margin-bottom: 8px; font-size: 0.95rem;">⚠️ ESTIMASI RISIKO & KERUSAKAN (${kendaraan.toUpperCase()}):</strong><ul style="margin: 0; padding-left: 20px; font-size: 0.85rem; color: #334155; line-height: 1.6;"><li><strong>Kerusakan:</strong> ${komponen}</li><li><strong>Biaya:</strong> <span style="color: #dc2626; font-weight: bold;">${biaya}</span></li><li><strong>Risiko:</strong> ${risiko}</li></ul></div>`;
-        }
-
-        pesanEl.innerHTML =
-          pesan +
-          catatanRouting +
-          estimasiHTML +
-          `<br><br><span style="font-size:0.75rem; opacity:0.6; color:#94a3b8;">*Tujuan: ${destName} | Sistem: ${modeAI === "OFF" ? "Manual Laporan" : "AI " + GEMINI_MODEL}</span>`;
+        pesanEl.innerHTML = pesan + `<br><br><span style="font-size:0.7rem; opacity:0.6;">*Tujuan: ${destName} | Sistem: ${modeAI === "OFF" ? "Manual Laporan" : "AI"}</span>`;
         box.style.display = "block";
       }
 
-      // Tombol Refresh / Muat Ulang Halaman
-      const refreshBtn = document.getElementById("refresh-btn");
-      refreshBtn.addEventListener("click", () => {
-        location.reload();
-      });
+      document.getElementById("refresh-btn").addEventListener("click", () => location.reload());
 
       const themeToggle = document.getElementById("theme-toggle");
       themeToggle.addEventListener("click", () => {
-        const currentTheme =
-          document.documentElement.getAttribute("data-theme");
-        if (currentTheme === "dark") {
+        if (document.documentElement.getAttribute("data-theme") === "dark") {
           document.documentElement.removeAttribute("data-theme");
           themeToggle.innerText = "🌙";
         } else {

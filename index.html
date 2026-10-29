@@ -329,15 +329,11 @@
   <body>
     <header>
       <div class="header-top">
-        <!-- Tombol Refresh di sebelah Kiri -->
         <button id="refresh-btn" class="icon-btn" title="Muat Ulang">🔄</button>
-        
         <div class="title-group">
           <span class="title-icon">🛡️</span>
           <h1>SafeRoute Lamong</h1>
         </div>
-
-        <!-- Tombol Tema di sebelah Kanan -->
         <button id="theme-toggle" class="icon-btn" title="Ganti Tema">🌙</button>
       </div>
       <p class="subtitle">
@@ -375,9 +371,7 @@
         <button class="btn-submit" id="btn-cek" onclick="cekJalan()">
           Mulai Navigasi
         </button>
-        <div class="loader" id="loader">
-          Mendeteksi GPS Perangkat...
-        </div>
+        <div class="loader" id="loader">Mendeteksi GPS Perangkat...</div>
 
         <div class="info-card">
           <span class="icon">🌧️</span>
@@ -393,11 +387,7 @@
         </div>
 
         <a href="lapor.html" class="link-access">Buka Akses Relawan (Laporan Lapangan) &rarr;</a>
-        <button
-          onclick="bukaAdmin()"
-          class="link-access"
-          style="margin-top: 8px; font-size: 0.75rem; color: #475569; background: none; border: none; cursor: pointer; width: 100%;"
-        >
+        <button onclick="bukaAdmin()" class="link-access" style="margin-top: 8px; font-size: 0.75rem; color: #475569; background: none; border: none; cursor: pointer; width: 100%;">
           Admin
         </button>
       </div>
@@ -410,7 +400,6 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-      // INISIALISASI FIREBASE
       const firebaseConfig = {
         databaseURL: "https://safe-cfd6d-default-rtdb.firebaseio.com/",
       };
@@ -423,15 +412,11 @@
       let kondisiAirLokal = "Kering (Aman)";
       let kondisiArusLokal = "Tenang";
 
-      // Listener Live AI Mode
       db.ref("sistem_ai_mode").on("value", (snapshot) => {
         const val = snapshot.val();
-        if (val) {
-          modeAI = val;
-        }
+        if (val) modeAI = val;
       });
 
-      // Listener Live Laporan Banjir
       db.ref("laporan_terkini").on("value", (snapshot) => {
         const data = snapshot.val();
         if (data) {
@@ -444,10 +429,7 @@
       function bukaAdmin() {
         let password = prompt("Akses Admin - Masukkan Password:");
         if (password === "lamongsaferai") {
-          let pilihan = prompt(
-            "STATUS AI SAAT INI (PUSAT): [" + modeAI + "]\n\n" +
-            "Ketik pilihan:\n1 = NYALAKAN AI\n2 = MATIKAN AI"
-          );
+          let pilihan = prompt("STATUS AI SAAT INI (PUSAT): [" + modeAI + "]\n\nKetik pilihan:\n1 = NYALAKAN AI\n2 = MATIKAN AI");
           if (pilihan === null) return;
           let clean = pilihan.trim();
           if (clean === "1") {
@@ -470,6 +452,7 @@
       const GEMINI_MODEL = "gemini-2.5-flash";
       const OSRM_BASE = "https://router.project-osrm.org/route/v1/driving";
 
+      // RUAS BANJIR UTAMA (GARIS MERAH DI PETA)
       const RUAS_BANJIR = [
         {
           nama: "Poros Morowudi - Benjeng",
@@ -491,9 +474,9 @@
 
       let activeLayerGroup = L.layerGroup().addTo(map);
 
-      async function ambilRuteJalan(titik) {
+      async function ambilRuteJalan(titik, hindari = null) {
         const coords = titik.map((p) => `${p[1]},${p[0]}`).join(";");
-        const url = `${OSRM_BASE}/${coords}?overview=full&geometries=geojson`;
+        const url = `${OSRM_BASE}/${coords}?overview=full&geometries=geojson${hindari ? "&alternatives=true" : ""}`;
 
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 5000);
@@ -532,7 +515,7 @@
       }
       inisialisasiTeks();
 
-      // FUNGSI UTAMA: Mengambil GPS real device user, jika gagal baru fallback
+      // GPS REAL DEVICE USER DENGAN FALLBACK AMAN
       function cekJalan() {
         const kendaraan = document.getElementById("kendaraan").value;
         const tujuanVal = document.getElementById("tujuan").value;
@@ -549,18 +532,14 @@
         resultBox.style.display = "none";
 
         if (!navigator.geolocation) {
-          alert("Geolocation tidak didukung di perangkat ini.");
           jalankanNavigasi(-7.2625, 112.5519, destLat, destLng, destName, kendaraan, btn, loader);
           return;
         }
 
         let executed = false;
-        
-        // Timeout 4 detik untuk menangkap GPS device, jika agak lambat langsung arahkan ke Benjeng/Lamongan terdekat
         const gpsTimer = setTimeout(() => {
           if (!executed) {
             executed = true;
-            console.warn("GPS device timeout, menggunakan kordinat default wilayah Lamongan/Gresik.");
             jalankanNavigasi(-7.2625, 112.5519, destLat, destLng, destName, kendaraan, btn, loader);
           }
         }, 4000);
@@ -573,11 +552,10 @@
               jalankanNavigasi(pos.coords.latitude, pos.coords.longitude, destLat, destLng, destName, kendaraan, btn, loader);
             }
           },
-          (err) => {
+          () => {
             if (!executed) {
               executed = true;
               clearTimeout(gpsTimer);
-              console.warn("GPS error/ditolak:", err.message);
               jalankanNavigasi(-7.2625, 112.5519, destLat, destLng, destName, kendaraan, btn, loader);
             }
           },
@@ -594,7 +572,7 @@
             let k = kondisiAirLokal.toLowerCase();
             if (k.includes("kering") || k.includes("aman") || k.includes("kaki")) {
               status = "AMAN";
-              pesan = `Kondisi air terpantau ${kondisiAirLokal}. Sangat aman dilalui ${kendaraan}.`;
+              pesan = `Kondisi air terpantau ${kondisiAirLokal}. Aman dilalui ${kendaraan}.`;
             } else {
               status = "BAHAYA";
               pesan = `PERINGATAN! Terdeteksi genangan ${kondisiAirLokal}. Risiko tinggi mogok untuk ${kendaraan}.`;
@@ -607,7 +585,7 @@
           document.getElementById("label-banjir").innerHTML = `Hulu: ${cuacaHulu} <br>Hilir: ${kondisiAirLokal}`;
           await prosesRuteDinamis(userLat, userLng, destLat, destLng, destName, kendaraan, status, pesan);
         } catch (e) {
-          console.error("Error navigasi:", e);
+          console.error(e);
         } finally {
           if (btn) btn.disabled = false;
           if (loader) loader.style.display = "none";
@@ -622,10 +600,12 @@
         box.className = "";
         activeLayerGroup.clearLayers();
 
+        // Marker Posisi GPS User
         L.marker([userLat, userLng], {
           icon: L.divIcon({ className: "custom-pin", html: `<div style="background-color:#38bdf8;width:18px;height:18px;border-radius:50%;border:2px solid white;"></div>` })
         }).addTo(activeLayerGroup).bindPopup("<b>Posisi Anda (GPS Device)</b>").openPopup();
 
+        // Marker Tujuan
         L.marker([destLat, destLng], {
           icon: L.divIcon({ className: "custom-pin", html: `<div style="background-color:#e63946;width:20px;height:20px;border-radius:50%;border:2px solid white;"></div>` })
         }).addTo(activeLayerGroup).bindPopup(`<b>Tujuan: ${destName}</b>`);
@@ -633,24 +613,57 @@
         const normal = await ambilRuteJalan([[userLat, userLng], [destLat, destLng]]);
         let ruteFinal = normal.koordinat;
 
+        // AMBIL DATA RUAS BANJIR MERAH
+        const ruasAktif = RUAS_BANJIR.filter((r) => r.aktif);
+        const merahList = await Promise.all(
+          ruasAktif.map((r) => ambilRuteJalan(r.titik))
+        );
+        const titikBanjir = merahList.flatMap((m) => m.koordinat);
+
+        // DETEKSI TABRAKAN RUTE DENGAN BANJIR
+        const cekTabrakanBanjir = (rute) => {
+          for (let i = 0; i < rute.length; i += 5) {
+            for (let j = 0; j < titikBanjir.length; j += 5) {
+              if (map.distance(rute[i], titikBanjir[j]) < 150) return true;
+            }
+          }
+          return false;
+        };
+
+        let ruteMenabrak = cekTabrakanBanjir(ruteFinal);
         let estimasiHTML = "";
 
-        if (status.includes("AMAN")) {
+        if (status.includes("AMAN") && !ruteMenabrak) {
           box.classList.add("aman");
           statusEl.innerText = `✅ STATUS: RUTE AMAN`;
           L.polyline(ruteFinal, { color: "#0f9d8f", weight: 5, opacity: 0.9 }).addTo(activeLayerGroup);
         } else {
           box.classList.add("bahaya");
           statusEl.innerText = `🚨 JALUR UTAMA TERHADANG BANJIR!`;
+          
+          // Gambar Rute Alternatif Biru Putus-putus
           L.polyline(ruteFinal, { color: "#3a86f0", weight: 5, opacity: 0.9, dashArray: "8, 8" }).addTo(activeLayerGroup);
           
+          // MUNCULKAN KEMBALI GARIS MERAH BANJIR DI PETA
+          merahList.forEach((m, i) =>
+            L.polyline(m.koordinat, {
+              color: "#e63946",
+              weight: 7,
+              opacity: 0.85,
+              dashArray: "5, 5",
+            })
+              .addTo(activeLayerGroup)
+              .bindPopup(`<b>⚠️ Ruas Terendam</b><br><small>${ruasAktif[i].nama}</small>`)
+          );
+
+          // Munculkan Titik Evakuasi
           dataTitikEvakuasi.forEach(t => {
             L.marker([t.lat, t.lng], {
               icon: L.divIcon({ className: "custom-pin", html: `<div class="pin-evakuasi">✚</div>`, iconSize: [24,24], iconAnchor: [12,12] })
             }).addTo(activeLayerGroup).bindPopup(`<b>🏥 ${t.nama}</b><br><small>${t.info}</small>`);
           });
 
-          // KEMBALIKAN ESTIMASI KERUSAKAN & BIAYA SECARA LENGKAP
+          // ESTIMASI KERUSAKAN & BIAYA LENGKAP
           let komponen = kendaraan.includes("Motor")
             ? "Turun mesin, ECU terbakar, CVT masuk lumpur."
             : "Water hammer, ECU korslet, interior wajib bongkar.";
@@ -661,6 +674,9 @@
         }
 
         const bounds = L.latLngBounds(ruteFinal);
+        if (!status.includes("AMAN")) {
+          merahList.forEach((m) => bounds.extend(L.latLngBounds(m.koordinit || m.koordinat)));
+        }
         map.fitBounds(bounds, { padding: [40, 40] });
 
         pesanEl.innerHTML = pesan + estimasiHTML + `<br><br><span style="font-size:0.7rem; opacity:0.6;">*Tujuan: ${destName} | Sistem: ${modeAI === "OFF" ? "Manual Laporan" : "AI"}</span>`;

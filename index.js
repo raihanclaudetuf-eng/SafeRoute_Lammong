@@ -1,4 +1,4 @@
-// INISIALISASI FIREBASE DI INDEX.HTML (LIVE LISTENER)
+// INISIALISASI FIREBASE
 const firebaseConfig = {
   databaseURL: "https://safe-cfd6d-default-rtdb.firebaseio.com/",
 };
@@ -6,12 +6,10 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.database();
-
 // Variabel Global & Listener Live untuk Mode AI & Laporan dari Firebase
 let modeAI = "ON";
 let kondisiAirLokal = "Kering (Aman)";
 let kondisiArusLokal = "Tenang";
-
 // Mendengarkan perubahan status AI dari Firebase secara real-time
 db.ref("sistem_ai_mode").on("value", (snapshot) => {
   const val = snapshot.val();
@@ -21,7 +19,13 @@ db.ref("sistem_ai_mode").on("value", (snapshot) => {
     inisialisasiTeks();
   }
 });
-
+const map = L.map("map", { zoomControl: false }).setView(
+  [-7.2625, 112.5519],
+  12,
+);
+L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 19,
+}).addTo(map);
 // Mendengarkan laporan kedalaman air dari Firebase secara real-time
 db.ref("laporan_terkini").on("value", (snapshot) => {
   const data = snapshot.val();
@@ -31,7 +35,6 @@ db.ref("laporan_terkini").on("value", (snapshot) => {
     inisialisasiTeks();
   }
 });
-
 // KONFIGURASI
 const GEMINI_API_KEY = "";
 const GEMINI_MODEL = "gemini-2.5-flash";
@@ -51,17 +54,16 @@ const RUAS_BANJIR = [
     aktif: true,
     titik: [
       [-7.2629, 112.4984],
-      [-7.3018, 112.4414],
+      [-7.265508137774267, 112.4721649379155],
     ],
   },
 ];
-
 const dataTitikEvakuasi = [
   {
-    nama: "Posko Darurat Kantor Kec. Benjeng",
-    lat: -7.2625,
-    lng: 112.5519,
-    info: "Dapur Umum & Pusat Komando",
+    nama: "Puskesmas Cerme",
+    lat: -7.235467717803073,
+    lng: 112.56425257469698,
+    info: "pusat pelayanan medis darurat",
   },
   {
     nama: "Puskesmas Benjeng",
@@ -70,26 +72,12 @@ const dataTitikEvakuasi = [
     info: "Pusat Pelayanan Medis Darurat",
   },
   {
-    nama: "Posko Siaga Morowudi (Cerme)",
-    lat: -7.238,
-    lng: 112.565,
-    info: "Titik Pantau Banjir Poros Morowudi",
-  },
-  {
-    nama: "Zona Aman Pengungsian Cerme",
-    lat: -7.2458,
-    lng: 112.5562,
-    info: "Area Evakuasi Warga",
+    nama: "Puskesmas Balongpanggang",
+    lat: -7.268000825397092,
+    lng: 112.4441828532581,
+    info: "pusat pelayanan medis darurat",
   },
 ];
-
-const map = L.map("map", { zoomControl: false }).setView(
-  [-7.2625, 112.5519],
-  12,
-);
-L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  maxZoom: 19,
-}).addTo(map);
 
 let activeLayerGroup = L.layerGroup().addTo(map);
 
@@ -118,8 +106,7 @@ async function ambilRuteJalan(titik, hindari = null) {
       const skor = (rute) =>
         rute.filter(
           (p, i) =>
-            i % 3 === 0 &&
-            hindariRingan.some((h) => map.distance(p, h) < 250),
+            i % 3 === 0 && hindariRingan.some((h) => map.distance(p, h) < 250),
         ).length;
 
       koordinat = semuaRute.reduce(
@@ -427,8 +414,7 @@ async function prosesRuteDinamis(
           "<br><small>⚠️ Rute alternatif garis lurus (perkiraan).</small>";
     } else {
       if (!normal.dariJalan)
-        catatanRouting =
-          "<br><small>⚠️ Rute garis lurus (perkiraan).</small>";
+        catatanRouting = "<br><small>⚠️ Rute garis lurus (perkiraan).</small>";
     }
 
     L.polyline(ruteFinal, {
@@ -467,9 +453,7 @@ async function prosesRuteDinamis(
         }),
       })
         .addTo(activeLayerGroup)
-        .bindPopup(
-          `<b>🏥 ${titik.nama}</b><br><small>${titik.info}</small>`,
-        );
+        .bindPopup(`<b>🏥 ${titik.nama}</b><br><small>${titik.info}</small>`);
     });
   }
 
@@ -521,8 +505,7 @@ refreshBtn.addEventListener("click", () => {
 
 const themeToggle = document.getElementById("theme-toggle");
 themeToggle.addEventListener("click", () => {
-  const currentTheme =
-    document.documentElement.getAttribute("data-theme");
+  const currentTheme = document.documentElement.getAttribute("data-theme");
   if (currentTheme === "dark") {
     document.documentElement.removeAttribute("data-theme");
     themeToggle.innerText = "🌙";
